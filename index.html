@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Brian Prendes — Quantum Engineering | High-End Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+    }
+  }
+</script>
+<style>
+  /* * AGGRESSIVE CURSOR HIDING:
+   * Replaces the default white cursor with an invisible 1x1 pixel image
+   * as a fallback in case the browser ignores 'cursor: none' 
+   */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='), none !important;
+  }
+  
+  :root {
+    --bg-deep: #000000; /* Pure Black for Maximum 3D Depth */
+    --ink-primary: #F1EFEC;
+    --ink-soft: #C7C3BB;
+    --ink-muted: #A8A29E;
+    --gold: #E6B74E;
+    --gold-bright: #FFD700;
+    --gold-dim: #B8862C;
+    --rule: #2E2B28;
+    --card-bg: rgba(18, 16, 15, 0.65);
+    --tag-bg: #211E1C;
+  }
+
+  /* 1. NATIVE 1-TO-1 FULL PAGE SCROLL SNAPPING */
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none; 
+    background: var(--bg-deep);
+  }
+  html::-webkit-scrollbar { display: none; }
+
+  body {
+    background-color: transparent; 
+    color: var(--ink-primary);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: clip; 
+  }
+
+  /* Canvas locked securely behind all content */
+  #quantum-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -2; /* Deepest layer */
+    pointer-events: none;
+  }
+  
+  /* Vignette Overlay to Enhance 3D Blackness */
+  .vignette-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle at center, transparent 40%, #000000 120%);
+    pointer-events: none; z-index: -1;
+  }
+
+  /* 2. STRICT INDEPENDENT SLIDE ENFORCEMENT */
+  .slide-section {
+    height: 100vh; 
+    width: 100vw;
+    scroll-snap-align: center;
+    scroll-snap-stop: always; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    padding: 0 5vw;
+    position: relative;
+    z-index: 10;
+    background: transparent; 
+  }
+
+  /* 3. THE "ESTELA" ATOM CURSOR */
+  .cursor-core {
+    position: fixed; top: 0; left: 0;
+    width: 8px; height: 8px;
+    background: var(--gold-bright);
+    border-radius: 50%;
+    pointer-events: none; z-index: 10000;
+    margin-left: -4px; margin-top: -4px;
+    box-shadow: 0 0 15px 4px rgba(255, 215, 0, 0.8), 0 0 30px rgba(230, 183, 78, 0.5);
+  }
+  .cursor-trail {
+    position: fixed; top: 0; left: 0;
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    margin-left: -3px; margin-top: -3px;
+    opacity: 0;
+  }
+
+  /* Navigation glass */
+  nav {
+    position: fixed; top: 20px; left: 30px; right: 30px; z-index: 110;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 2rem;
+    background: rgba(5, 5, 5, 0.4);
+    backdrop-filter: blur(20px);
+    border-radius: 80px;
+    border: 1px solid rgba(230,183,78,0.2);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 600; letter-spacing: 0.12em; font-size: 0.9rem; text-transform: uppercase; color: var(--ink-primary); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--ink-soft); text-decoration: none; position: relative; font-weight: 500; transition: color 0.2s; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 0%; height: 2px; background: var(--gold); transition: width 0.4s cubic-bezier(0.2,1,0.3,1); }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* Buttons */
+  .action-btn {
+    display: inline-flex; align-items: center; gap: 8px; color: #020202; background: var(--gold); 
+    padding: 10px 20px; text-decoration: none; border-radius: 40px; font-weight: 600; 
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; 
+    transition: transform 0.3s, background 0.3s, color 0.3s;
+    border: 1px solid var(--gold);
+  }
+  .action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,183,78,0.3); }
+  .action-btn.outline { background: transparent; color: var(--gold); }
+  .action-btn.outline:hover { background: rgba(230,183,78,0.1); }
+
+  /* Project cards redefined */
+  .section-header { display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.8rem; align-items: baseline; }
+  .section-num { background: rgba(230,183,78,0.2); padding: 0.2rem 0.9rem; border-radius: 40px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gold); font-weight: 600; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 500; letter-spacing: -0.02em; }
+  .section-title em { font-style: italic; color: var(--gold); padding-right: 5px; }
+
+  /* Big Expanded Project Blocks */
+  .project-block, .philosophy {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(230,183,78,0.2);
+    border-radius: 36px;
+    transition: all 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    max-height: 75vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
+  }
+  .project-block::-webkit-scrollbar { width: 6px; }
+  .project-block::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+  .project-block:hover { border-color: rgba(230,183,78,0.6); transform: translateY(-4px); box-shadow: 0 15px 25px -10px rgba(0,0,0,0.5); }
+  
+  .project-inner { padding: 4vh 2.5rem; }
+  .project-inner.long-content { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+  
+  @media (min-width: 1024px) {
+    .project-inner.long-content { grid-template-columns: 1.4fr 1fr; }
+  }
+
+  .card-status { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 0.8rem; display: flex; gap: 0.6rem; align-items: center; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: clamp(1.5rem, 3vh, 2.2rem); font-weight: 500; margin-bottom: 0.2rem; }
+  .card-org { font-size: 0.7rem; text-transform: uppercase; color: var(--gold-dim); letter-spacing: 0.15em; margin-bottom: 1.2rem; }
+  
+  /* Skimmable text styling */
+  .card-body { color: var(--ink-soft); margin-bottom: 0.8rem; line-height: 1.6; font-size: clamp(0.85rem, 1.5vh, 0.95rem); }
+  .data-grid { display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem 1rem; margin-bottom: 1rem; border-left: 2px solid var(--rule); padding-left: 1rem; }
+  .data-label { color: var(--gold); font-family: 'Syne', sans-serif; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; font-weight: 600; padding-top: 2px; }
+  .data-value { color: var(--ink-primary); }
+  
+  .card-skills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+  .skill-chip { background: var(--tag-bg); padding: 0.3rem 0.8rem; border-radius: 60px; font-size: 0.65rem; letter-spacing: 0.05em; border: 0.5px solid rgba(230,183,78,0.3); }
+  
+  .project-img-area { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
+  .proj-img { border-radius: 20px; overflow: hidden; background: #1e1b18; height: 30vh; min-height: 200px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
+  .proj-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.2,0.9,0.4,1.1); }
+  .proj-img:hover img { transform: scale(1.06); }
+  .img-caption { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; backdrop-filter: blur(4px); }
+
+  /* ==================================================
+     MASSIVE PHILOSOPHY / HOW I THINK CARDS
+     ================================================== */
+  .phil-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; margin-top: 2rem; }
+  .phil-card { 
+    padding: 4rem 3rem; 
+    background: rgba(255,255,255,0.02); 
+    border-radius: 32px; 
+    border: 1px solid rgba(230,183,78,0.2); 
+    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 480px; 
+  }
+  .phil-card:hover { border-color: var(--gold); transform: translateY(-8px); background: rgba(230,183,78,0.05); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+  .phil-num { font-size: 5rem; font-family: 'Syne'; font-weight: 700; color: var(--gold); opacity: 0.7; margin-bottom: 1.5rem; line-height: 1; }
+  .phil-title { font-size: 1.8rem; font-weight: 600; margin-bottom: 1.5rem; line-height: 1.3; }
+  .phil-card p { font-size: 1.2rem; line-height: 1.8; color: var(--ink-soft); }
+
+  .music-btn {
+    position: fixed; bottom: 2rem; right: 2rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px);
+    border: 1px solid var(--gold); border-radius: 60px; padding: 0.6rem 1.2rem; color: var(--gold);
+    font-size: 0.7rem; z-index: 200; font-weight: 500; transition: 0.2s;
+  }
+  .music-btn:hover { background: var(--gold); color: #000; border-color: #fff; }
+
+  /* Scroll Indicator */
+  .scroll-indicator {
+    position: absolute; bottom: 5vh; left: 5vw;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold);
+    text-transform: uppercase;
+    animation: bounce 2s infinite ease-in-out;
+  }
+  .scroll-indicator::before {
+    content: ''; width: 1px; height: 30px; background: var(--gold);
+  }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+  /* Responsive fixes for the giant cards */
+  @media (max-width: 1200px) {
+    .phil-grid { gap: 1.5rem; }
+    .phil-card { padding: 3rem 2rem; min-height: 400px; }
+    .phil-num { font-size: 4rem; }
+  }
+
+  @media (max-width: 900px) {
+    nav { margin: 0 15px; padding: 0.7rem 1.5rem; }
+    .nav-links { display: none; }
+    .slide-section { padding: 0 2rem !important; }
+    .phil-grid { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1rem;}
+    .phil-card { min-height: auto; padding: 2.5rem 1.5rem; border-radius: 20px;}
+    .phil-num { font-size: 3rem; margin-bottom: 1rem; }
+    .phil-title { font-size: 1.4rem; }
+    .phil-card p { font-size: 1rem; line-height: 1.6; }
+    .project-inner.long-content { grid-template-columns: 1fr; }
+    .data-grid { grid-template-columns: 1fr; gap: 0.2rem; }
+    .data-label { padding-top: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 3D BACKGROUND -->
+<canvas id="quantum-canvas"></canvas>
+<div class="vignette-overlay"></div>
+
+<nav>
+  <a class="nav-logo" href="#">⚡ BRIAN PRENDES</a>
+  <ul class="nav-links">
+    <li><a href="#robotic-hand">ASSISTIVE</a></li>
+    <li><a href="#safe-slicer">HARDWARE</a></li>
+    <li><a href="#philosophy">APPROACH</a></li>
+  </ul>
+</nav>
+
+<!-- SLIDE 1: HERO -->
+<div class="slide-section" id="hero-section">
+  <div style="position: relative; z-index: 10; width: 100%; margin-left: 5vw;">
+    <div class="hero-eyebrow" style="color: var(--ink-soft); letter-spacing: 0.4em; font-size: 0.8rem; display: flex; align-items: center; gap: 15px;">
+      <span style="width: 40px; height: 1px; background: var(--gold);"></span>
+      BS PHYSICS & MECHANICAL ENGINEERING, YALE UNIVERSITY
+    </div>
+    
+    <h1 class="hero-name" style="font-size: clamp(3.5rem, 7vw, 7rem); line-height: 0.9; margin: 1.2rem 0; font-weight: 800; text-transform: uppercase;">
+      Physical Systems,<br>
+      <em style="font-style: italic; color: var(--gold); font-weight: 400; font-family: 'Times New Roman', Times, serif; text-transform: lowercase; font-size: 1.1em; margin-left: 5vw;">real constraints.</em>
+    </h1>
+    
+    <p class="hero-desc" style="font-size: 1.1rem; max-width: 500px; line-height: 1.6; color: var(--ink-muted); margin-left: 5vw; border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 2rem;">
+      I design and build devices that meet people where they are. Every project begins with a real constraint and ends with a tangible, human purpose.
+    </p>
+
+    <!-- RESUME LINK - Change "Resume.pdf" to your secret file name once hosted -->
+    <div style="margin-left: 5vw; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a href="Resume.pdf" download="Brian_Prendes_Resume.pdf" target="_blank" rel="noopener noreferrer" class="action-btn">📄 View / Download Resume</a>
+      <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline">LinkedIn ↗</a>
+      <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn outline">✉️ Email</a>
+    </div>
+  </div>
+  
+  <div class="scroll-indicator">Scroll To Discover</div>
+</div>
+
+<!-- ==============================================
+     ASSISTIVE SYSTEMS
+=============================================== -->
+<div class="slide-section" id="robotic-hand">
+  <div class="section-header"><span class="section-num">01</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Mar 2026 – Present</div>
+        <div class="card-title">Stroke Rehabilitation Hand</div>
+        <div class="card-org">Yale University (Collaborative)</div>
+        <div class="card-body">
+          <div class="data-grid">
+            <div class="data-label">Problem</div>
+            <div class="data-value">Patients recovering from strokes lack accessible, continuous mechanical therapy devices for recovering fine motor skills in the hand.</div>
+            
+            <div class="data-label">My Role</div>
+            <div class="data-value">Assisting a graduate student in the mechanical engineering and fabrication of a wearable hand rehabilitation device.</div>
+            
+            <div class="data-label">Focus</div>
+            <div class="data-value">Precise mechanotherapy mechanisms, joint articulation, and user comfort.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">Rehabilitation Robotics</span><span class="skill-chip">Mechanotherapy</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/119/800/600" alt="hand"><div class="img-caption">Prototyping Phase</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-section" id="arm-project">
+  <div class="section-header"><span class="section-num">02</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Feb 2026 – Present</div>
+        <div class="card-title">Pediatric Prosthetic Arm</div>
+        <div class="card-org">Independent / Collaborative</div>
+        <div class="card-body">
+          <div class="data-grid">
+            <div class="data-label">Problem</div>
+            <div class="data-value">Medical-grade prosthetics for growing children are financially devastating for families due to the constant need for resizing.</div>
+            
+            <div class="data-label">My Role</div>
+            <div class="data-value">Fabricating a highly functional, 3D-printed prosthetic arm tailored for a specific pediatric patient.</div>
+            
+            <div class="data-label">Outcome</div>
+            <div class="data-value">Restoring the child's ability to manipulate objects with both hands while completely circumventing traditional medical device costs.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">FDM 3D Printing</span><span class="skill-chip">Onshape (CAD)</span><span class="skill-chip">Prototyping</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/106/800/600" alt="arm"><div class="img-caption">3D Printed Model</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-section" id="wheelchair-scale">
+  <div class="section-header"><span class="section-num">03</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Feb 2026 – Present</div>
+        <div class="card-title">Wheelchair Scale System</div>
+        <div class="card-org">Yale University</div>
+        <div class="card-body">
+           <div class="data-grid">
+            <div class="data-label">Problem</div>
+            <div class="data-value">Measuring body weight requires wheelchair users to transfer to specific clinical scales or purchase highly expensive at-home equipment.</div>
+            
+            <div class="data-label">My Role</div>
+            <div class="data-value">Designing a structural setup utilizing cheap, everyday materials that allows users to independently and safely roll on to measure their weight.</div>
+            
+            <div class="data-label">Tools</div>
+            <div class="data-value">Computer-Aided Design (CAD), Material Stress Testing, Structural Engineering.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">CAD</span><span class="skill-chip">Accessibility Engineering</span><span class="skill-chip">Cost Optimization</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/268/800/600" alt="scale"><div class="img-caption">Scale Concept</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-section" id="glove-project">
+  <div class="section-header"><span class="section-num">04</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Sep 2025 – Present</div>
+        <div class="card-title">Rehabilitation Glove</div>
+        <div class="card-org">Yale Assistive Innovation and Design (Y-AID)</div>
+        <div class="card-body">
+          <div class="data-grid">
+            <div class="data-label">Problem</div>
+            <div class="data-value">Physical therapy regimens require consistent structural support and tracking that traditional bandages cannot provide.</div>
+            
+            <div class="data-label">My Role</div>
+            <div class="data-value">Member of the CAD design and fabrication team engineering a specialized silicone glove.</div>
+            
+            <div class="data-label">Outcome</div>
+            <div class="data-value">Developed molds and material compositions for a flexible silicone wearable that directly aids targeted physical therapy.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">Onshape (CAD)</span><span class="skill-chip">Silicone Casting</span><span class="skill-chip">Fabrication</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/18/800/600" alt="glove"><div class="img-caption">Silicone Material Tests</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     MECHANICAL / HARDWARE
+=============================================== -->
+<div class="slide-section" id="safe-slicer">
+  <div class="section-header"><span class="section-num">05</span><h2 class="section-title"><em>Mechanical</em> Hardware</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Jan 2026 – Apr 2026</div>
+        <div class="card-title">Safe-Slicer: Mechanical Automation</div>
+        <div class="card-org">MENG 1105 - Yale University</div>
+        
+        <div class="card-body">
+          <div class="data-grid">
+            <div class="data-label">Problem</div>
+            <div class="data-value">Individuals with limited hand mobility cannot safely slice vegetables. Automating this without electronics requires complex mechanical loop systems.</div>
+            
+            <div class="data-label">My Role</div>
+            <div class="data-value">Engineered a 100% mechanical, one-handed slicer. Designed a "Cut and Advance" loop driven entirely by a single handle downstroke/upstroke.</div>
+            
+            <div class="data-label">Execution</div>
+            <div class="data-value">Integrated a one-way needle-roller bearing on a freewheel shaft to grip the food during the cut. Used a linear gear rack and timing belt to advance the PVC conveyor forward by exactly one slice-thickness on the upstroke.</div>
+            
+            <div class="data-label">Tools</div>
+            <div class="data-value">Onshape, 3D-Printed PLA, manually machined 6061 Aluminum shafts, gears, belts, epoxy.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">Kinematics</span><span class="skill-chip">Machining</span><span class="skill-chip">Gear Trains</span><span class="skill-chip">Conveyor Systems</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/129/800/600" alt="side view right"><div class="img-caption">Transmission Assembly</div></div>
+        <div class="proj-img"><img src="https://picsum.photos/id/42/800/600" alt="side view left"><div class="img-caption">Machined Shafts</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-section" id="vega">
+  <div class="section-header"><span class="section-num">06</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Nov 2025 – Dec 2025</div>
+        <div class="card-title">V.E.G.A. Companion</div>
+        <div class="card-org">Yale University</div>
+        
+        <div class="card-body">
+          <div class="data-grid">
+            <div class="data-label">Problem</div>
+            <div class="data-value">Forearm gripper exercises are highly repetitive and lack objective measurement or engagement.</div>
+            
+            <div class="data-label">My Role</div>
+            <div class="data-value">Built "The Gamified Gripper Assistant"—a smart attachment that acts as a digital pet you keep healthy by completing physical grip challenges.</div>
+            
+            <div class="data-label">Features</div>
+            <div class="data-value">Programmed an Arduino with four game modes: Morse Code input via grip length, Reps Per Second tracking, and a static Endurance mode with anti-cheat sensor logic.</div>
+            
+            <div class="data-label">Design</div>
+            <div class="data-value">CADed a humanoid chassis that physically restricts bad thumb placement for ergonomics, while housing potentiometers to measure spring compression.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">Arduino / C++</span><span class="skill-chip">Potentiometers</span><span class="skill-chip">Onshape</span><span class="skill-chip">UI/UX Logic</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/20/800/600" alt="vega setup"><div class="img-caption">V.E.G.A Interface</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-section" id="pong">
+  <div class="section-header"><span class="section-num">07</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
+  <div class="project-block wave-item">
+    <div class="project-inner long-content">
+      <div class="text-content">
+        <div class="card-status">Nov 2025</div>
+        <div class="card-title">Screwless Pong Console</div>
+        <div class="card-org">Engineering Innovation & Design</div>
+        
+        <div class="card-body">
+          <div class="data-grid">
+            <div class="data-label">Goal</div>
+            <div class="data-value">Merge nostalgic 1980s television aesthetics with modern Design for Assembly (DFA) rapid prototyping.</div>
+            
+            <div class="data-label">Hardware</div>
+            <div class="data-value">Engineered a 100% screwless chassis utilizing custom snap-fit locks. Soldered an Arduino Nano and OLED screen onto a custom internal mounting platform to secure electronics from button-mashing.</div>
+            
+            <div class="data-label">Software</div>
+            <div class="data-value">Programmed game physics in C++ featuring vertical head-to-head gameplay, randomly spawning geometry power-ups, live statistics, and a smart power-saving sleep mode.</div>
+          </div>
+        </div>
+        <div class="card-skills"><span class="skill-chip">Circuit Design</span><span class="skill-chip">Soldering</span><span class="skill-chip">Arduino / C++</span><span class="skill-chip">DFA 3D Printing</span></div>
+      </div>
+      <div class="project-img-area">
+        <div class="proj-img"><img src="https://picsum.photos/id/96/800/600" alt="entire setup"><div class="img-caption">Fully Assembled Console</div></div>
+        <div class="proj-img"><img src="https://picsum.photos/id/26/800/600" alt="carcass"><div class="img-caption">Internal Snap-fit Chassis</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PHILOSOPHY & FOOTER
+=============================================== -->
+<div class="slide-section" id="philosophy">
+  <div class="section-header"><span class="section-num">08</span><h2 class="section-title">How I <em>Think</em></h2></div>
+  <div class="philosophy wave-item" style="background: transparent; border: none; padding: 0; overflow: visible;">
+    <div class="phil-grid">
+      <div class="phil-card">
+        <div class="phil-num">I</div>
+        <div class="phil-title">Constraints Are the Brief</div>
+        <p>Cost, lack of electronics, one‑hand operation — these are not limitations; they form the design DNA and drive true innovation.</p>
+      </div>
+      <div class="phil-card">
+        <div class="phil-num">II</div>
+        <div class="phil-title">User Defines the System</div>
+        <p>Real people, not abstractions. Empathy is the primary engineering metric when designing tools that interface with humanity.</p>
+      </div>
+      <div class="phil-card">
+        <div class="phil-num">III</div>
+        <div class="phil-title">Mechanics Before Electronics</div>
+        <p>Robust, repairable, accessible. Simplicity is the ultimate sophistication. A mechanical failure should always have a tangible fix.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-section" id="footer" style="align-items: center; text-align: center;">
+  <h2 style="font-family: 'Syne'; font-size: 3rem; margin-bottom: 2rem;">Ready to Build?</h2>
+  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn" style="padding: 16px 36px; font-size: 1rem;">
+      Email Me ↗
+    </a>
+    <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline" style="padding: 16px 36px; font-size: 1rem;">
+      LinkedIn ↗
+    </a>
+  </div>
+  <span style="color: var(--ink-muted); margin-top: 3rem; font-size: 0.8rem; letter-spacing: 0.2em;">BRIAN PRENDES · YALE PHYSICS & MECH E 2029</span>
+</div>
+
+<!-- MUSIC TOGGLE -->
+<div class="music-btn" id="musicToggle">🎧 ambient OFF</div>
+
+<!-- QUANTUM REACTOR 3D BACKGROUND LOGIC -->
+<script type="module">
+  import * as THREE from 'three';
+  import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+  import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+  import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+  
+  const canvas = document.getElementById('quantum-canvas');
+  
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  
+  // 1. ABSOLUTE BLACK BACKGROUND
+  renderer.setClearColor(0x000000, 1); 
+
+  const scene = new THREE.Scene();
+  // Absolute black fog to enhance 3D depth into nothingness
+  scene.fog = new THREE.FogExp2(0x000000, 0.04);
+  
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 10, 30);
+  camera.lookAt(0, 0, 0);
+  
+  const renderScene = new RenderPass(scene, camera);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.2);
+  const effectComposer = new EffectComposer(renderer);
+  effectComposer.addPass(renderScene);
+  effectComposer.addPass(bloomPass);
+
+  function createDustTexture() {
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = 64;
+    texCanvas.height = 64;
+    const ctx = texCanvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.6)');
+    gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(texCanvas);
+  }
+  const particleTexture = createDustTexture();
+  
+  // BASE OCEAN LAYER
+  const width = 120, height = 120, segments = 90;
+  const planeGeo = new THREE.PlaneGeometry(width, height, segments, segments);
+  planeGeo.rotateX(-Math.PI / 2.1); 
+
+  const positions = planeGeo.attributes.position.array;
+  const colorsArr = new Float32Array(positions.length);
+  const startY = new Float32Array(positions.length / 3);
+
+  for(let i=0; i<positions.length; i+=3){
+    positions[i] += (Math.random() - 0.5) * 0.5;
+    positions[i+2] += (Math.random() - 0.5) * 0.5;
+    startY[i/3] = positions[i+1];
+
+    const isGold = Math.random() > 0.35;
+    const color = new THREE.Color(isGold ? 0xE6B74E : 0x0044FF);
+    colorsArr[i] = color.r;
+    colorsArr[i+1] = color.g;
+    colorsArr[i+2] = color.b;
+  }
+  planeGeo.setAttribute('color', new THREE.BufferAttribute(colorsArr, 3));
+  
+  const planeMat = new THREE.PointsMaterial({ 
+    size: 0.35, 
+    vertexColors: true, 
+    transparent: true, 
+    map: particleTexture,
+    blending: THREE.AdditiveBlending, 
+    depthWrite: false,
+    opacity: 0.45 
+  });
+  const ocean = new THREE.Points(planeGeo, planeMat);
+  scene.add(ocean);
+
+  // CONSTANT FLOATING DUST PARTICLES
+  const floatCount = 600;
+  const floatGeo = new THREE.BufferGeometry();
+  const floatPos = new Float32Array(floatCount * 3);
+  const floatVel = [];
+  const floatColors = new Float32Array(floatCount * 3);
+
+  for(let i=0; i<floatCount; i++) {
+    floatPos[i*3] = (Math.random() - 0.5) * 100;
+    floatPos[i*3+1] = (Math.random() - 0.5) * 50 + 10; 
+    floatPos[i*3+2] = (Math.random() - 0.5) * 100;
+    
+    floatVel.push({
+      x: (Math.random() - 0.5) * 0.1,
+      y: (Math.random() - 0.5) * 0.1,
+      z: (Math.random() - 0.5) * 0.1
+    });
+
+    const isGold = Math.random() > 0.5;
+    const color = new THREE.Color(isGold ? 0xE6B74E : 0xffffff);
+    floatColors[i*3] = color.r;
+    floatColors[i*3+1] = color.g;
+    floatColors[i*3+2] = color.b;
+  }
+
+  floatGeo.setAttribute('position', new THREE.BufferAttribute(floatPos, 3));
+  floatGeo.setAttribute('color', new THREE.BufferAttribute(floatColors, 3));
+
+  const floatMat = new THREE.PointsMaterial({
+    size: 0.9,
+    vertexColors: true,
+    transparent: true,
+    map: particleTexture,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    opacity: 0.95
+  });
+  const driftingParticles = new THREE.Points(floatGeo, floatMat);
+  scene.add(driftingParticles);
+
+  // 3. ORGANIC SURFACE SOLAR FLARES (Glowing hotspots on the ocean waves)
+  const flareCount = 40; // Reduced count so it's elegant and not distracting
+  const flareGeo = new THREE.BufferGeometry();
+  const flarePos = new Float32Array(flareCount * 3);
+  const flareColorsArr = new Float32Array(flareCount * 3);
+  const flareLife = new Float32Array(flareCount); 
+  
+  // Custom round, soft sun-spot texture
+  function createFlareTexture() {
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = 64;
+    texCanvas.height = 64;
+    const ctx = texCanvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 180, 50, 0.5)'); // Softer, dimmer gold core
+    gradient.addColorStop(0.4, 'rgba(255, 70, 0, 0.25)'); // Highly muted orange aura
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(texCanvas);
+  }
+
+  for(let i=0; i<flareCount; i++) {
+    flarePos[i*3] = 0; 
+    flarePos[i*3+1] = -100; // Hidden below
+    flarePos[i*3+2] = 0;
+    
+    flareColorsArr[i*3] = 0; 
+    flareColorsArr[i*3+1] = 0; 
+    flareColorsArr[i*3+2] = 0;
+    
+    flareLife[i] = 0;
+  }
+  
+  flareGeo.setAttribute('position', new THREE.BufferAttribute(flarePos, 3));
+  flareGeo.setAttribute('color', new THREE.BufferAttribute(flareColorsArr, 3));
+  
+  const flareMat = new THREE.PointsMaterial({
+    size: 28.0, // MUCH bigger glowing hotspots on the surface so they are highly visible!
+    vertexColors: true, 
+    transparent: true,
+    map: createFlareTexture(),
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  // Ensure flares sit exactly behind the floating dust but on the ocean
+  const flares = new THREE.Points(flareGeo, flareMat);
+  scene.add(flares);
+  
+  // Camera & Mouse logic
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e) => { 
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1; 
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1; 
+  });
+  
+  let time = 0;
+  const posAttribute = ocean.geometry.attributes.position;
+  const vArr = posAttribute.array;
+  const driftPositions = driftingParticles.geometry.attributes.position.array;
+  
+  const fPos = flares.geometry.attributes.position.array;
+  const fCol = flares.geometry.attributes.color.array;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    time += 0.012;
+
+    // Ocean Waves
+    for(let i=0; i<vArr.length; i+=3) {
+      const x = vArr[i];
+      const z = vArr[i+2];
+      vArr[i+1] = startY[i/3] + Math.sin(x * 0.15 + time) * 1.5 + Math.cos(z * 0.15 + time) * 1.5 + Math.sin((x+z)*0.05 + time);
+    }
+    posAttribute.needsUpdate = true;
+
+    // Floating Dust
+    for(let i=0; i<floatCount; i++) {
+      driftPositions[i*3] += floatVel[i].x;
+      driftPositions[i*3+1] += floatVel[i].y;
+      driftPositions[i*3+2] += floatVel[i].z;
+
+      if(driftPositions[i*3+1] > 40) driftPositions[i*3+1] = -10;
+      if(driftPositions[i*3+1] < -10) driftPositions[i*3+1] = 40;
+      if(driftPositions[i*3] > 50) driftPositions[i*3] = -50;
+      if(driftPositions[i*3] < -50) driftPositions[i*3] = 50;
+      if(driftPositions[i*3+2] > 50) driftPositions[i*3+2] = -50;
+      if(driftPositions[i*3+2] < -50) driftPositions[i*3+2] = 50;
+    }
+    driftingParticles.geometry.attributes.position.needsUpdate = true;
+    driftingParticles.rotation.y = time * 0.05;
+
+    // Organic Surface Solar Flares Dynamics
+    for(let i=0; i<flareCount; i++) {
+      // Trigger a new hotspot smoothly from a random ocean atom
+      if (flareLife[i] === 0 && Math.random() < 0.02) { // Increased spawn rate
+        const oceanVertexCount = vArr.length / 3;
+        const randomOceanIdx = Math.floor(Math.random() * oceanVertexCount) * 3;
+        
+        // Latch onto the specific ocean particle's coordinates
+        fPos[i*3] = vArr[randomOceanIdx];
+        fPos[i*3+1] = vArr[randomOceanIdx+1]; 
+        fPos[i*3+2] = vArr[randomOceanIdx+2];
+
+        flareLife[i] = 0.01; // Ignite lifecycle
+      }
+      
+      // Animate active surface flares
+      if (flareLife[i] > 0) {
+        // Drift up slightly like a solar prominence
+        fPos[i*3+1] += 0.06;
+        flareLife[i] += 0.005; // Controls how fast it pulses and dies
+
+        // Mathematical fade-in and fade-out (Sine curve: 0 to 1 to 0)
+        let alpha = Math.sin(flareLife[i] * Math.PI);
+        
+        if (flareLife[i] >= 1.0) {
+          flareLife[i] = 0;
+          fPos[i*3+1] = -100; // Hide deep below when dead
+          alpha = 0;
+        }
+
+        // Apply additive opacity by scaling color (dimmed multipliers)
+        fCol[i*3] = 0.65 * alpha;      // Red
+        fCol[i*3+1] = 0.35 * alpha;    // Orange/Gold blend
+        fCol[i*3+2] = 0.0 * alpha;     // Blue
+      }
+    }
+    flares.geometry.attributes.position.needsUpdate = true;
+    flares.geometry.attributes.color.needsUpdate = true;
+
+    // Camera Pan
+    camera.position.x += (mouseX * 8 - camera.position.x) * 0.02;
+    camera.position.y += ((10 + mouseY * 4) - camera.position.y) * 0.02;
+    camera.lookAt(0, 0, 0);
+
+    effectComposer.render();
+  }
+  animate();
+  
+  window.addEventListener('resize', () => { 
+    camera.aspect = window.innerWidth/window.innerHeight; 
+    camera.updateProjectionMatrix(); 
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    effectComposer.setSize(window.innerWidth, window.innerHeight); 
+  });
+</script>
+
+<script>
+// 1. NON-ANNOYING AMBIENT MUSIC
+const audio = new Audio('https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3');
+audio.loop = true; audio.volume = 0.06;
+let musicPlaying = false;
+const musicBtn = document.getElementById('musicToggle');
+function startMusic() { 
+  if (!musicPlaying) { 
+    audio.play().then(() => { musicPlaying = true; musicBtn.innerHTML = '🎧 ambient ON'; }).catch(()=>{}); 
+    document.removeEventListener('click', startMusic); 
+    document.removeEventListener('keydown', startMusic); 
+  } 
+}
+document.addEventListener('click', startMusic); 
+document.addEventListener('keydown', startMusic);
+musicBtn.addEventListener('click', (e) => { 
+  e.stopPropagation(); 
+  if (musicPlaying) { audio.pause(); musicPlaying = false; musicBtn.innerHTML = '🎧 ambient OFF'; } 
+  else { audio.play().catch(()=>{}); musicPlaying = true; musicBtn.innerHTML = '🎧 ambient ON'; } 
+});
+
+// 2. GSAP SCROLLTRIGGER REVEALS
+const waveItems = document.querySelectorAll('.wave-item');
+waveItems.forEach((item) => {
+  gsap.fromTo(item, 
+    { opacity: 0, y: 60 }, 
+    { 
+      opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
+      scrollTrigger: {
+        trigger: item.closest('.slide-section'),
+        start: "top 60%", 
+        toggleActions: "play none none reverse" 
+      }
+    }
+  );
+});
+
+// 3. CINEMATIC HERO ENTRANCE
+gsap.fromTo('.hero-eyebrow, .hero-name, .hero-desc, .action-btn', 
+  { opacity: 0, y: 50, filter: "blur(10px)" }, 
+  { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.8, stagger: 0.2, ease: "power4.out", delay: 0.3 }
+);
+
+// 4. THE "ESTELA" (TRAIL) CURSOR LOGIC
+const cursorCore = document.createElement('div');
+cursorCore.className = 'cursor-core';
+document.body.appendChild(cursorCore);
+
+const trails = [];
+const trailCount = 8;
+for(let i=0; i<trailCount; i++) {
+  let t = document.createElement('div');
+  t.className = 'cursor-trail';
+  t.style.opacity = 1 - (i / trailCount);
+  t.style.transform = `scale(${1 - (i / trailCount) * 0.6})`;
+  document.body.appendChild(t);
+  trails.push({ el: t, x: window.innerWidth/2, y: window.innerHeight/2 });
+}
+
+let mouseX = window.innerWidth/2;
+let mouseY = window.innerHeight/2;
+
+document.addEventListener('mousemove', (e) => { 
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  gsap.to(cursorCore, {x: mouseX, y: mouseY, duration: 0}); 
+});
+
+function renderCursorTrail() {
+  let tx = mouseX;
+  let ty = mouseY;
+  
+  trails.forEach((trail, index) => {
+    trail.x += (tx - trail.x) * 0.4;
+    trail.y += (ty - trail.y) * 0.4;
+    gsap.set(trail.el, { x: trail.x, y: trail.y });
+    tx = trail.x;
+    ty = trail.y;
+  });
+  requestAnimationFrame(renderCursorTrail);
+}
+renderCursorTrail();
+
+// The custom JS scroll jumper was deleted here. 
+// We now rely 100% on Native CSS Scroll Snapping which handles trackpads perfectly!
+
+</script>
+</body>
+</html>
