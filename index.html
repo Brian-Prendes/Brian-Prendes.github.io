@@ -186,6 +186,7 @@
   /* FIXED: IMAGE AND VIDEO FORMATTING */
   .project-img-area { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
   .project-img-area.grid-2col { grid-template-columns: 1fr 1fr; }
+  .project-img-area.grid-3col { grid-template-columns: repeat(3, 1fr); }
   .proj-img { border-radius: 20px; overflow: hidden; background: #0a0a0a; height: auto; aspect-ratio: 16 / 9; min-height: 200px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
   .proj-img.short { aspect-ratio: 9 / 16; min-height: unset; }
   /* This ensures both images, videos, and youtube iframes fill the box perfectly without stretching */
@@ -252,6 +253,7 @@
     .phil-title { font-size: 1.4rem; }
     .phil-card p { font-size: 1rem; line-height: 1.6; }
     .project-inner.long-content { grid-template-columns: 1fr; }
+    .project-img-area.grid-3col { grid-template-columns: 1fr 1fr; }
     .data-grid { grid-template-columns: 1fr; gap: 0.2rem; }
     .data-label { padding-top: 0.5rem; }
     .proj-img { height: 25vh; min-height: 180px; }
@@ -357,7 +359,8 @@
       </div>
       <div class="project-img-area">
         <div class="proj-img">
-          <video autoplay muted loop playsinline>
+          <!-- Added poster image so the video box doesn't appear black when the local file is missing -->
+          <video autoplay muted loop playsinline poster="https://picsum.photos/id/106/800/600">
             <source src="Small-Videos/Arm.mp4" type="video/mp4">
           </video>
           <div class="img-caption">Arm Demo</div>
@@ -491,7 +494,7 @@
         </div>
         <div class="card-skills"><span class="skill-chip">Arduino / C++</span><span class="skill-chip">Potentiometers</span><span class="skill-chip">Onshape</span><span class="skill-chip">UI/UX Logic</span></div>
       </div>
-      <div class="project-img-area grid-2col">
+      <div class="project-img-area grid-3col">
         <div class="proj-img short">
           <iframe src="https://www.youtube.com/embed/z3a8MGIos2Q?autoplay=1&mute=1&loop=1&playlist=z3a8MGIos2Q&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Endurance</div>
@@ -507,6 +510,13 @@
         <div class="proj-img short">
           <iframe src="https://www.youtube.com/embed/jWNmFfgsqPE?autoplay=1&mute=1&loop=1&playlist=jWNmFfgsqPE&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Electronics Test</div>
+        </div>
+        <div class="proj-img short">
+          <!-- The local GitHub Finish video -->
+          <video autoplay muted loop playsinline poster="Images/Overall-design-Vega.jpg"> 
+            <source src="Small-Videos/Finish.mp4" type="video/mp4">
+          </video>
+          <div class="img-caption">Final Mechanism</div>
         </div>
       </div>
     </div>
@@ -707,7 +717,7 @@
   scene.add(driftingParticles);
 
   // 3. ORGANIC SURFACE SOLAR FLARES (Glowing hotspots on the ocean waves)
-  const flareCount = 40; 
+  const flareCount = 40; // Reduced count so it's elegant and not distracting
   const flareGeo = new THREE.BufferGeometry();
   const flarePos = new Float32Array(flareCount * 3);
   const flareColorsArr = new Float32Array(flareCount * 3);
@@ -744,13 +754,14 @@
   flareGeo.setAttribute('color', new THREE.BufferAttribute(flareColorsArr, 3));
   
   const flareMat = new THREE.PointsMaterial({
-    size: 28.0, // Big glowing hotspots on the surface
+    size: 28.0, // MUCH bigger glowing hotspots on the surface so they are highly visible!
     vertexColors: true, 
     transparent: true,
     map: createFlareTexture(),
     blending: THREE.AdditiveBlending,
     depthWrite: false
   });
+  // Ensure flares sit exactly behind the floating dust but on the ocean
   const flares = new THREE.Points(flareGeo, flareMat);
   scene.add(flares);
   
@@ -800,7 +811,7 @@
     // Organic Surface Solar Flares Dynamics
     for(let i=0; i<flareCount; i++) {
       // Trigger a new hotspot smoothly from a random ocean atom
-      if (flareLife[i] === 0 && Math.random() < 0.02) { 
+      if (flareLife[i] === 0 && Math.random() < 0.02) { // Increased spawn rate
         const oceanVertexCount = vArr.length / 3;
         const randomOceanIdx = Math.floor(Math.random() * oceanVertexCount) * 3;
         
