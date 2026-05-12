@@ -187,6 +187,7 @@
   .project-img-area { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
   .project-img-area.grid-2col { grid-template-columns: 1fr 1fr; }
   .project-img-area.grid-3col { grid-template-columns: repeat(3, 1fr); }
+  .project-img-area.grid-mixed { grid-template-columns: 1.6fr 1fr; align-items: center; } /* Perfect balance for Landscape + Portrait mix */
   
   .proj-img { border-radius: 20px; overflow: hidden; background: #0a0a0a; height: auto; aspect-ratio: 16 / 9; min-height: 200px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
   .proj-img.short { aspect-ratio: 9 / 16; min-height: unset; max-height: 50vh; }
@@ -197,6 +198,25 @@
   
   .proj-img:hover img, .proj-img:hover video { transform: scale(1.04); }
   .img-caption { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px; font-size: 0.7rem; backdrop-filter: blur(4px); }
+
+  /* Work-in-progress placeholder box */
+  .placeholder-box {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(230, 183, 78, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+    color: var(--ink-muted);
+    font-style: italic;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 2rem;
+  }
 
   /* ==================================================
      MASSIVE PHILOSOPHY / HOW I THINK CARDS
@@ -257,6 +277,7 @@
     .phil-card p { font-size: 1rem; line-height: 1.6; }
     .project-inner.long-content { grid-template-columns: 1fr; }
     .project-img-area.grid-3col { grid-template-columns: 1fr 1fr; }
+    .project-img-area.grid-mixed { grid-template-columns: 1fr; } /* Stacks safely on mobile */
     .data-grid { grid-template-columns: 1fr; gap: 0.2rem; }
     .data-label { padding-top: 0.5rem; }
     .proj-img { height: 25vh; min-height: 180px; }
@@ -314,7 +335,7 @@
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
-        <div class="card-status">Mar 2026 – Present</div>
+        <div class="card-status">Mar 2026 – Impending</div>
         <div class="card-title">Stroke Rehabilitation Hand</div>
         <div class="card-org">Yale University (Collaborative)</div>
         <div class="card-body">
@@ -332,7 +353,7 @@
         <div class="card-skills"><span class="skill-chip">Rehabilitation Robotics</span><span class="skill-chip">Mechanotherapy</span></div>
       </div>
       <div class="project-img-area">
-        <div class="proj-img"><img src="https://picsum.photos/id/119/800/600" alt="hand"><div class="img-caption">Prototyping Phase</div></div>
+        <div class="placeholder-box">More fixes are to follow...</div>
       </div>
     </div>
   </div>
@@ -343,7 +364,7 @@
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
-        <div class="card-status">Feb 2026 – Present</div>
+        <div class="card-status">Feb 2026 – Impending</div>
         <div class="card-title">Pediatric Prosthetic Arm</div>
         <div class="card-org">Independent / Collaborative</div>
         <div class="card-body">
@@ -362,7 +383,7 @@
       </div>
       <div class="project-img-area grid-2col">
         <div class="proj-img short">
-          <video controls playsinline>
+          <video controls playsinline muted>
             <source src="Small-Videos/Arm.mp4" type="video/mp4">
           </video>
           <div class="img-caption">Arm Demo</div>
@@ -377,7 +398,7 @@
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
-        <div class="card-status">Feb 2026 – Present</div>
+        <div class="card-status">Feb 2026 – Impending</div>
         <div class="card-title">Wheelchair Scale System</div>
         <div class="card-org">Yale University</div>
         <div class="card-body">
@@ -396,7 +417,7 @@
       </div>
       <div class="project-img-area grid-2col">
         <div class="proj-img short">
-          <iframe src="https://www.youtube.com/embed/jWNmFfgsqPE?controls=1" allow="fullscreen" loading="lazy"></iframe>
+          <iframe src="https://www.youtube.com/embed/jWNmFfgsqPE?controls=1&mute=1" allow="fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Wheelchair Pro</div>
         </div>
       </div>
@@ -409,7 +430,7 @@
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
-        <div class="card-status">Sep 2025 – Present</div>
+        <div class="card-status">Sep 2025 – Impending</div>
         <div class="card-title">Rehabilitation Glove</div>
         <div class="card-org">Yale Assistive Innovation and Design (Y-AID)</div>
         <div class="card-body">
@@ -427,7 +448,7 @@
         <div class="card-skills"><span class="skill-chip">Onshape (CAD)</span><span class="skill-chip">Silicone Casting</span><span class="skill-chip">Fabrication</span></div>
       </div>
       <div class="project-img-area">
-        <div class="proj-img"><img src="https://picsum.photos/id/18/800/600" alt="glove"><div class="img-caption">Silicone Material Tests</div></div>
+        <div class="placeholder-box">More fixes are to follow...</div>
       </div>
     </div>
   </div>
@@ -506,19 +527,19 @@
       <!-- 2x2 grid specifically for the 4 videos so they fit perfectly on one screen -->
       <div class="project-img-area grid-2col">
         <div class="proj-img short">
-          <iframe src="https://www.youtube.com/embed/z3a8MGIos2Q?controls=1" allow="fullscreen" loading="lazy"></iframe>
+          <iframe src="https://www.youtube.com/embed/z3a8MGIos2Q?controls=1&mute=1" allow="fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Endurance</div>
         </div>
         <div class="proj-img short">
-          <iframe src="https://www.youtube.com/embed/bs-tiWq0rQM?controls=1" allow="fullscreen" loading="lazy"></iframe>
+          <iframe src="https://www.youtube.com/embed/bs-tiWq0rQM?controls=1&mute=1" allow="fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Morse Code</div>
         </div>
         <div class="proj-img short">
-          <iframe src="https://www.youtube.com/embed/JoYKKSnEZ9M?controls=1" allow="fullscreen" loading="lazy"></iframe>
+          <iframe src="https://www.youtube.com/embed/JoYKKSnEZ9M?controls=1&mute=1" allow="fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Reps</div>
         </div>
         <div class="proj-img short">
-          <video controls playsinline> 
+          <video controls playsinline muted> 
             <source src="Small-Videos/Finish.mp4" type="video/mp4">
           </video>
           <div class="img-caption">Final Mechanism</div>
@@ -551,10 +572,11 @@
         </div>
         <div class="card-skills"><span class="skill-chip">Circuit Design</span><span class="skill-chip">Soldering</span><span class="skill-chip">Arduino / C++</span><span class="skill-chip">DFA 3D Printing</span></div>
       </div>
-      <div class="project-img-area grid-2col">
+      <!-- Fixed: Switched to grid-mixed so the wide image and tall video scale harmoniously -->
+      <div class="project-img-area grid-mixed">
         <div class="proj-img"><img src="Images/Pong-console.jpg" alt="Pong Console"><div class="img-caption">Fully Assembled Console</div></div>
         <div class="proj-img short">
-          <iframe src="https://www.youtube.com/embed/2XC8f2PqMUQ?controls=1" allow="fullscreen" loading="lazy"></iframe>
+          <iframe src="https://www.youtube.com/embed/2XC8f2PqMUQ?controls=1&mute=1" allow="fullscreen" loading="lazy"></iframe>
           <div class="img-caption">Electronics Test</div>
         </div>
       </div>
