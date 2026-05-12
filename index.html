@@ -43,7 +43,6 @@
   /* 1. NATIVE 1-TO-1 FULL PAGE SCROLL SNAPPING */
   html {
     scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
     scrollbar-width: none; 
     background: var(--bg-deep);
   }
@@ -184,12 +183,16 @@
   .card-skills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
   .skill-chip { background: var(--tag-bg); padding: 0.3rem 0.8rem; border-radius: 60px; font-size: 0.65rem; letter-spacing: 0.05em; border: 0.5px solid rgba(230,183,78,0.3); }
   
+  /* FIXED: IMAGE AND VIDEO FORMATTING */
   .project-img-area { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
-  .proj-img { border-radius: 20px; overflow: hidden; background: #1e1b18; height: auto; aspect-ratio: 16 / 9; min-height: 200px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
-  .proj-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.2,0.9,0.4,1.1); }
-  .proj-img video { width: 100%; height: 100%; object-fit: contain; background: black; }
-  .proj-img:hover img { transform: scale(1.06); }
-  .img-caption { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; backdrop-filter: blur(4px); }
+  .project-img-area.grid-2col { grid-template-columns: 1fr 1fr; }
+  .proj-img { border-radius: 20px; overflow: hidden; background: #0a0a0a; height: auto; aspect-ratio: 16 / 9; min-height: 200px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
+  .proj-img.short { aspect-ratio: 9 / 16; min-height: unset; }
+  /* This ensures both images, videos, and youtube iframes fill the box perfectly without stretching */
+  .proj-img img, .proj-img video, .proj-img iframe { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.2,0.9,0.4,1.1); border: none; }
+  .proj-img iframe { pointer-events: none; transform: scale(1.05); } /* Prevents scroll-trapping and hides youtube edges */
+  .proj-img:hover img, .proj-img:hover video { transform: scale(1.04); }
+  .img-caption { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px; font-size: 0.7rem; backdrop-filter: blur(4px); }
 
   /* ==================================================
      MASSIVE PHILOSOPHY / HOW I THINK CARDS
@@ -232,7 +235,7 @@
   }
   @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
 
-  /* Responsive fixes for the giant cards */
+  /* Responsive fixes */
   @media (max-width: 1200px) {
     .phil-grid { gap: 1.5rem; }
     .phil-card { padding: 3rem 2rem; min-height: 400px; }
@@ -251,6 +254,7 @@
     .project-inner.long-content { grid-template-columns: 1fr; }
     .data-grid { grid-template-columns: 1fr; gap: 0.2rem; }
     .data-label { padding-top: 0.5rem; }
+    .proj-img { height: 25vh; min-height: 180px; }
   }
 </style>
 </head>
@@ -286,9 +290,9 @@
       I design and build devices that meet people where they are. Every project begins with a real constraint and ends with a tangible, human purpose.
     </p>
 
-    <!-- RESUME LINK - Change "Resume.pdf" to your secret file name once hosted -->
+    <!-- RESUME LINK -->
     <div style="margin-left: 5vw; display: flex; gap: 1rem; flex-wrap: wrap;">
-      <a href="BrianP_Resume_82XqL.pdf.pdf" download="Brian-Prendes_Resume.pdf" target="_blank" rel="noopener noreferrer" class="action-btn">📄 View / Download Resume</a>
+      <a href="BrianP_Resume_82XqL.pdf" download="Brian_Prendes_Resume.pdf" target="_blank" rel="noopener noreferrer" class="action-btn">📄 View / Download Resume</a>
       <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline">LinkedIn ↗</a>
       <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn outline">✉️ Email</a>
     </div>
@@ -352,7 +356,12 @@
         <div class="card-skills"><span class="skill-chip">FDM 3D Printing</span><span class="skill-chip">Onshape (CAD)</span><span class="skill-chip">Prototyping</span></div>
       </div>
       <div class="project-img-area">
-                <div class="proj-img"> <video autoplay muted loop playsinline> <source src="Small-Videos/Arm.mp4" type="video/mp4"> </video> <div class="img-caption">Arm Demo</div>
+        <div class="proj-img">
+          <video autoplay muted loop playsinline>
+            <source src="Small-Videos/Arm.mp4" type="video/mp4">
+          </video>
+          <div class="img-caption">Arm Demo</div>
+        </div>
       </div>
     </div>
   </div>
@@ -381,7 +390,10 @@
         <div class="card-skills"><span class="skill-chip">CAD</span><span class="skill-chip">Accessibility Engineering</span><span class="skill-chip">Cost Optimization</span></div>
       </div>
       <div class="project-img-area">
-        <div class="proj-img"><img src="https://picsum.photos/id/268/800/600" alt="scale"><div class="img-caption">Scale Concept</div></div>
+        <div class="proj-img short">
+          <iframe src="https://www.youtube.com/embed/2XC8f2PqMUQ?autoplay=1&mute=1&loop=1&playlist=2XC8f2PqMUQ&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
+          <div class="img-caption">Wheelchair Pro</div>
+        </div>
       </div>
     </div>
   </div>
@@ -479,9 +491,23 @@
         </div>
         <div class="card-skills"><span class="skill-chip">Arduino / C++</span><span class="skill-chip">Potentiometers</span><span class="skill-chip">Onshape</span><span class="skill-chip">UI/UX Logic</span></div>
       </div>
-      <div class="project-img-area">
-        <div class="proj-img"><img src="Images/Overall-design-Vega.jpg" alt="Vega Design"> <div class="img-caption">V.E.G.A Interface</div></div>
-          <div class="proj-img"><video autoplay muted loop playsinline> <source src="Small-Videos/Finish.mp4" type="video/mp4"></video><div class="img-caption">Final Mechanism</div>
+      <div class="project-img-area grid-2col">
+        <div class="proj-img short">
+          <iframe src="https://www.youtube.com/embed/z3a8MGIos2Q?autoplay=1&mute=1&loop=1&playlist=z3a8MGIos2Q&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
+          <div class="img-caption">Endurance</div>
+        </div>
+        <div class="proj-img short">
+          <iframe src="https://www.youtube.com/embed/bs-tiWq0rQM?autoplay=1&mute=1&loop=1&playlist=bs-tiWq0rQM&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
+          <div class="img-caption">Morse Code</div>
+        </div>
+        <div class="proj-img short">
+          <iframe src="https://www.youtube.com/embed/JoYKKSnEZ9M?autoplay=1&mute=1&loop=1&playlist=JoYKKSnEZ9M&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
+          <div class="img-caption">Reps</div>
+        </div>
+        <div class="proj-img short">
+          <iframe src="https://www.youtube.com/embed/jWNmFfgsqPE?autoplay=1&mute=1&loop=1&playlist=jWNmFfgsqPE&controls=0" allow="autoplay; fullscreen" loading="lazy"></iframe>
+          <div class="img-caption">Electronics Test</div>
+        </div>
       </div>
     </div>
   </div>
@@ -681,7 +707,7 @@
   scene.add(driftingParticles);
 
   // 3. ORGANIC SURFACE SOLAR FLARES (Glowing hotspots on the ocean waves)
-  const flareCount = 40; // Reduced count so it's elegant and not distracting
+  const flareCount = 40; 
   const flareGeo = new THREE.BufferGeometry();
   const flarePos = new Float32Array(flareCount * 3);
   const flareColorsArr = new Float32Array(flareCount * 3);
@@ -718,14 +744,13 @@
   flareGeo.setAttribute('color', new THREE.BufferAttribute(flareColorsArr, 3));
   
   const flareMat = new THREE.PointsMaterial({
-    size: 28.0, // MUCH bigger glowing hotspots on the surface so they are highly visible!
+    size: 28.0, // Big glowing hotspots on the surface
     vertexColors: true, 
     transparent: true,
     map: createFlareTexture(),
     blending: THREE.AdditiveBlending,
     depthWrite: false
   });
-  // Ensure flares sit exactly behind the floating dust but on the ocean
   const flares = new THREE.Points(flareGeo, flareMat);
   scene.add(flares);
   
@@ -775,7 +800,7 @@
     // Organic Surface Solar Flares Dynamics
     for(let i=0; i<flareCount; i++) {
       // Trigger a new hotspot smoothly from a random ocean atom
-      if (flareLife[i] === 0 && Math.random() < 0.02) { // Increased spawn rate
+      if (flareLife[i] === 0 && Math.random() < 0.02) { 
         const oceanVertexCount = vArr.length / 3;
         const randomOceanIdx = Math.floor(Math.random() * oceanVertexCount) * 3;
         
@@ -910,9 +935,6 @@ function renderCursorTrail() {
   requestAnimationFrame(renderCursorTrail);
 }
 renderCursorTrail();
-
-// The custom JS scroll jumper was deleted here. 
-// We now rely 100% on Native CSS Scroll Snapping which handles trackpads perfectly!
 
 </script>
 </body>
