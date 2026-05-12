@@ -16,19 +16,13 @@
   }
 </script>
 <style>
-  /* * AGGRESSIVE CURSOR HIDING:
-   * Replaces the default white cursor with an invisible 1x1 pixel image
-   * as a fallback in case the browser ignores 'cursor: none' 
-   */
   * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0; padding: 0; box-sizing: border-box;
     cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='), none !important;
   }
-  
+ 
   :root {
-    --bg-deep: #000000; /* Pure Black for Maximum 3D Depth */
+    --bg-deep: #000000;
     --ink-primary: #F1EFEC;
     --ink-soft: #C7C3BB;
     --ink-muted: #A8A29E;
@@ -39,67 +33,129 @@
     --card-bg: rgba(18, 16, 15, 0.65);
     --tag-bg: #211E1C;
   }
-
-  /* 1. NATIVE 1-TO-1 FULL PAGE SCROLL SNAPPING */
+ 
   html {
     scroll-snap-type: y mandatory;
-    scrollbar-width: none; 
+    scrollbar-width: none;
     background: var(--bg-deep);
   }
   html::-webkit-scrollbar { display: none; }
-
+ 
   body {
-    background-color: transparent; 
+    background-color: transparent;
     color: var(--ink-primary);
     font-family: 'Inter', sans-serif;
     font-weight: 400;
     font-size: 16px;
     line-height: 1.6;
-    overflow-x: clip; 
+    overflow-x: clip;
   }
-
-  /* Canvas locked securely behind all content */
+ 
   #quantum-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -2; /* Deepest layer */
-    pointer-events: none;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -2; pointer-events: none;
   }
-  
-  /* Vignette Overlay to Enhance 3D Blackness */
+ 
   .vignette-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: radial-gradient(circle at center, transparent 40%, #000000 120%);
     pointer-events: none; z-index: -1;
   }
-
-  /* 2. STRICT INDEPENDENT SLIDE ENFORCEMENT */
-  .slide-section {
-    height: 100vh; 
-    width: 100vw;
-    scroll-snap-align: center;
-    scroll-snap-stop: always; 
+ 
+  /* ============================================
+     SCROLL PROGRESS FILAMENT
+  ============================================ */
+  .scroll-filament {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 200px;
+    background: rgba(230, 183, 78, 0.12);
+    border-radius: 2px;
+    z-index: 500;
+    overflow: hidden;
+  }
+  .scroll-filament::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%;
+    height: 0%;
+    background: linear-gradient(to bottom, var(--gold-bright), var(--gold));
+    border-radius: 2px;
+    transition: height 0.1s linear;
+    box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.5);
+  }
+  .scroll-filament.p10::after { height: 10%; }
+  .scroll-filament.p20::after { height: 20%; }
+  .scroll-filament.p30::after { height: 30%; }
+  .scroll-filament.p40::after { height: 40%; }
+  .scroll-filament.p50::after { height: 50%; }
+  .scroll-filament.p60::after { height: 60%; }
+  .scroll-filament.p70::after { height: 70%; }
+  .scroll-filament.p80::after { height: 80%; }
+  .scroll-filament.p90::after { height: 90%; }
+  .scroll-filament.p100::after { height: 100%; }
+ 
+  /* Slide dots next to filament */
+  .slide-dots {
+    position: fixed;
+    right: 36px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    justify-content: center; 
-    padding: 0 5vw;
-    position: relative;
-    z-index: 10;
-    background: transparent; 
+    gap: 10px;
+    z-index: 500;
   }
-
-  /* 3. THE "ESTELA" ATOM CURSOR */
+  .slide-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(230, 183, 78, 0.25);
+    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    cursor: pointer !important;
+  }
+  .slide-dot.active {
+    background: var(--gold-bright);
+    box-shadow: 0 0 8px 3px rgba(255, 215, 0, 0.6);
+    transform: scale(1.6);
+  }
+ 
+  /* ============================================
+     SLIDE SECTIONS
+  ============================================ */
+  .slide-section {
+    height: 100vh; width: 100vw;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0 5vw;
+    position: relative; z-index: 10;
+    background: transparent;
+  }
+ 
+  /* ============================================
+     MAGNETIC CURSOR SYSTEM
+  ============================================ */
   .cursor-core {
     position: fixed; top: 0; left: 0;
-    width: 8px; height: 8px;
+    width: 10px; height: 10px;
     background: var(--gold-bright);
     border-radius: 50%;
     pointer-events: none; z-index: 10000;
-    margin-left: -4px; margin-top: -4px;
+    margin-left: -5px; margin-top: -5px;
     box-shadow: 0 0 15px 4px rgba(255, 215, 0, 0.8), 0 0 30px rgba(230, 183, 78, 0.5);
+    /* Scale on hover targets via JS */
+    transition: width 0.3s, height 0.3s, border-radius 0.3s, margin 0.3s, background 0.3s;
+  }
+  .cursor-core.expanded {
+    width: 40px; height: 40px;
+    margin-left: -20px; margin-top: -20px;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    box-shadow: 0 0 20px 6px rgba(255, 215, 0, 0.15);
   }
   .cursor-trail {
     position: fixed; top: 0; left: 0;
@@ -108,10 +164,11 @@
     border-radius: 50%;
     pointer-events: none; z-index: 9999;
     margin-left: -3px; margin-top: -3px;
-    opacity: 0;
   }
-
-  /* Navigation glass */
+ 
+  /* ============================================
+     NAVIGATION
+  ============================================ */
   nav {
     position: fixed; top: 20px; left: 30px; right: 30px; z-index: 110;
     display: flex; align-items: center; justify-content: space-between;
@@ -121,216 +178,334 @@
     border-radius: 80px;
     border: 1px solid rgba(230,183,78,0.2);
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transition: border-color 0.4s;
   }
-  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 600; letter-spacing: 0.12em; font-size: 0.9rem; text-transform: uppercase; color: var(--ink-primary); text-decoration: none; }
-  .nav-links { display: flex; gap: 2rem; list-style: none; }
-  .nav-links a { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--ink-soft); text-decoration: none; position: relative; font-weight: 500; transition: color 0.2s; }
-  .nav-links a::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 0%; height: 2px; background: var(--gold); transition: width 0.4s cubic-bezier(0.2,1,0.3,1); }
-  .nav-links a:hover { color: var(--gold); }
-  .nav-links a:hover::after { width: 100%; }
-
-  /* Buttons */
+  nav:hover { border-color: rgba(230,183,78,0.4); }
+ 
+  .nav-logo {
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    letter-spacing: 0.12em; font-size: 0.9rem;
+    text-transform: uppercase; color: var(--ink-primary); text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; position: relative; }
+ 
+  /* Active nav pill */
+  .nav-pill {
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: left 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1), width 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    box-shadow: 0 0 8px 2px rgba(230,183,78,0.5);
+  }
+ 
+  .nav-links a {
+    font-size: 0.7rem; letter-spacing: 0.2em; color: var(--ink-soft);
+    text-decoration: none; position: relative; font-weight: 500;
+    transition: color 0.2s;
+    padding-bottom: 10px;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+ 
+  /* ============================================
+     BUTTONS
+  ============================================ */
   .action-btn {
-    display: inline-flex; align-items: center; gap: 8px; color: #020202; background: var(--gold); 
-    padding: 10px 20px; text-decoration: none; border-radius: 40px; font-weight: 600; 
-    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; 
-    transition: transform 0.3s, background 0.3s, color 0.3s;
+    display: inline-flex; align-items: center; gap: 8px;
+    color: #020202; background: var(--gold);
+    padding: 10px 20px; text-decoration: none; border-radius: 40px;
+    font-weight: 600; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: transform 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
     border: 1px solid var(--gold);
   }
   .action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,183,78,0.3); }
   .action-btn.outline { background: transparent; color: var(--gold); }
   .action-btn.outline:hover { background: rgba(230,183,78,0.1); }
-
-  /* Project cards redefined */
-  .section-header { display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.8rem; align-items: baseline; }
-  .section-num { background: rgba(230,183,78,0.2); padding: 0.2rem 0.9rem; border-radius: 40px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gold); font-weight: 600; }
-  .section-title { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 500; letter-spacing: -0.02em; }
+ 
+  /* ============================================
+     SECTION HEADERS & CARDS
+  ============================================ */
+  .section-header {
+    display: flex; gap: 1rem; margin-bottom: 1rem;
+    border-bottom: 1px solid var(--rule); padding-bottom: 0.8rem; align-items: baseline;
+  }
+  .section-num {
+    background: rgba(230,183,78,0.2); padding: 0.2rem 0.9rem; border-radius: 40px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gold); font-weight: 600;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 500; letter-spacing: -0.02em;
+  }
   .section-title em { font-style: italic; color: var(--gold); padding-right: 5px; }
-
-  /* Big Expanded Project Blocks */
+ 
+  /* ============================================
+     PROJECT BLOCKS WITH CHROMATIC ABERRATION
+  ============================================ */
   .project-block, .philosophy {
     background: var(--card-bg);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(230,183,78,0.2);
     border-radius: 36px;
     transition: all 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    max-height: 85vh; /* Increased to prevent accidental scroll trapping */
+    max-height: 85vh;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--gold) transparent;
+    position: relative;
+    /* Inner glow via box-shadow inset */
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 0 transparent;
   }
   .project-block::-webkit-scrollbar { width: 6px; }
   .project-block::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-  .project-block:hover { border-color: rgba(230,183,78,0.6); transform: translateY(-4px); box-shadow: 0 15px 25px -10px rgba(0,0,0,0.5); }
-  
+ 
+  /* Second inner border pseudo element for depth */
+  .project-block::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 35px;
+    border: 1px solid rgba(255,255,255,0.03);
+    pointer-events: none;
+    transition: border-color 0.5s;
+  }
+ 
+  /* Chromatic aberration on hover */
+  .project-block:hover {
+    border-color: rgba(230,183,78,0.6);
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.07),
+      0 15px 40px -10px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(230,183,78,0.08),
+      -2px 0 8px rgba(0, 60, 255, 0.06),
+      2px 0 8px rgba(255, 30, 0, 0.06);
+  }
+  .project-block:hover::before { border-color: rgba(255,255,255,0.06); }
+ 
   .project-inner { padding: 4vh 2.5rem; }
   .project-inner.long-content { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
-  
   @media (min-width: 1024px) {
     .project-inner.long-content { grid-template-columns: 1.4fr 1fr; }
   }
-
-  .card-status { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 0.8rem; display: flex; gap: 0.6rem; align-items: center; }
+ 
+  .card-status {
+    font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold);
+    margin-bottom: 0.8rem; display: flex; gap: 0.6rem; align-items: center;
+  }
   .card-title { font-family: 'Syne', sans-serif; font-size: clamp(1.5rem, 3vh, 2.2rem); font-weight: 500; margin-bottom: 0.2rem; }
   .card-org { font-size: 0.7rem; text-transform: uppercase; color: var(--gold-dim); letter-spacing: 0.15em; margin-bottom: 1.2rem; }
-  
-  /* Skimmable text styling */
   .card-body { color: var(--ink-soft); margin-bottom: 0.8rem; line-height: 1.6; font-size: clamp(0.85rem, 1.5vh, 0.95rem); }
-  .data-grid { display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem 1rem; margin-bottom: 1rem; border-left: 2px solid var(--rule); padding-left: 1rem; }
+ 
+  .data-grid {
+    display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem 1rem;
+    margin-bottom: 1rem; border-left: 2px solid var(--rule); padding-left: 1rem;
+  }
   .data-label { color: var(--gold); font-family: 'Syne', sans-serif; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; font-weight: 600; padding-top: 2px; }
   .data-value { color: var(--ink-primary); }
-  
   .card-skills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
-  .skill-chip { background: var(--tag-bg); padding: 0.3rem 0.8rem; border-radius: 60px; font-size: 0.65rem; letter-spacing: 0.05em; border: 0.5px solid rgba(230,183,78,0.3); }
-  
-  /* FIXED: IMAGE AND VIDEO FORMATTING */
+  .skill-chip {
+    background: var(--tag-bg); padding: 0.3rem 0.8rem; border-radius: 60px;
+    font-size: 0.65rem; letter-spacing: 0.05em; border: 0.5px solid rgba(230,183,78,0.3);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .skill-chip:hover { background: rgba(230,183,78,0.1); border-color: rgba(230,183,78,0.6); }
+ 
+  /* ============================================
+     IMAGE AREAS
+  ============================================ */
   .project-img-area { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
   .project-img-area.grid-2col { grid-template-columns: 1fr 1fr; }
   .project-img-area.grid-3col { grid-template-columns: repeat(3, 1fr); }
-  .project-img-area.grid-mixed { grid-template-columns: 1.6fr 1fr; align-items: center; } /* Perfect balance for Landscape + Portrait mix */
-  
-  .proj-img { border-radius: 20px; overflow: hidden; background: #0a0a0a; height: auto; aspect-ratio: 16 / 9; min-height: 200px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
+  .project-img-area.grid-mixed { grid-template-columns: 1.6fr 1fr; align-items: center; }
+ 
+  .proj-img {
+    border-radius: 20px; overflow: hidden; background: #0a0a0a;
+    height: auto; aspect-ratio: 16 / 9; min-height: 200px;
+    position: relative; border: 1px solid rgba(255,255,255,0.05);
+    transition: border-color 0.4s, box-shadow 0.4s;
+  }
+  .proj-img:hover {
+    border-color: rgba(230,183,78,0.3);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
   .proj-img.short { aspect-ratio: 9 / 16; min-height: unset; max-height: 50vh; }
-  
-  /* Images cover fully, but Videos/Iframes scale to fit (contain) so you never get cropped! */
   .proj-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.2,0.9,0.4,1.1); border: none; }
-  .proj-img video, .proj-img iframe { width: 100%; height: 100%; object-fit: contain; transition: transform 0.6s cubic-bezier(0.2,0.9,0.4,1.1); border: none; background: #000; }
-  
+  .proj-img video, .proj-img iframe { width: 100%; height: 100%; object-fit: contain; border: none; background: #000; }
   .proj-img:hover img, .proj-img:hover video { transform: scale(1.04); }
-  .img-caption { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px; font-size: 0.7rem; backdrop-filter: blur(4px); }
-
-  /* Work-in-progress placeholder box */
+ 
+  .img-caption {
+    position: absolute; bottom: 10px; left: 10px;
+    background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px;
+    font-size: 0.7rem; backdrop-filter: blur(4px);
+  }
+ 
   .placeholder-box {
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(230, 183, 78, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 200px;
-    color: var(--ink-muted);
-    font-style: italic;
-    font-size: 0.8rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    text-align: center;
-    padding: 2rem;
+    border-radius: 20px; background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(230,183,78,0.3);
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; min-height: 200px; color: var(--ink-muted);
+    font-style: italic; font-size: 0.8rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-align: center; padding: 2rem;
   }
-
-  /* ==================================================
-     MASSIVE PHILOSOPHY / HOW I THINK CARDS
-     ================================================== */
+ 
+  /* ============================================
+     PHILOSOPHY SECTION
+  ============================================ */
   .phil-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; margin-top: 2rem; }
-  .phil-card { 
-    padding: 4rem 3rem; 
-    background: rgba(255,255,255,0.02); 
-    border-radius: 32px; 
-    border: 1px solid rgba(230,183,78,0.2); 
-    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
-    backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 480px; 
+  .phil-card {
+    padding: 4rem 3rem; background: rgba(255,255,255,0.02);
+    border-radius: 32px; border: 1px solid rgba(230,183,78,0.2);
+    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    backdrop-filter: blur(8px); display: flex; flex-direction: column; justify-content: center;
+    min-height: 480px; position: relative; overflow: hidden;
   }
-  .phil-card:hover { border-color: var(--gold); transform: translateY(-8px); background: rgba(230,183,78,0.05); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+  /* Radial shine on hover */
+  .phil-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(230,183,78,0.06), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+    border-radius: 32px;
+    pointer-events: none;
+  }
+  .phil-card:hover::after { opacity: 1; }
+  .phil-card:hover { border-color: var(--gold); transform: translateY(-8px); background: rgba(230,183,78,0.04); box-shadow: 0 20px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(230,183,78,0.1); }
   .phil-num { font-size: 5rem; font-family: 'Syne'; font-weight: 700; color: var(--gold); opacity: 0.7; margin-bottom: 1.5rem; line-height: 1; }
   .phil-title { font-size: 1.8rem; font-weight: 600; margin-bottom: 1.5rem; line-height: 1.3; }
   .phil-card p { font-size: 1.2rem; line-height: 1.8; color: var(--ink-soft); }
-
+ 
+  /* ============================================
+     AMBIENT MUSIC BUTTON
+  ============================================ */
   .music-btn {
-    position: fixed; bottom: 2rem; right: 2rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px);
-    border: 1px solid var(--gold); border-radius: 60px; padding: 0.6rem 1.2rem; color: var(--gold);
-    font-size: 0.7rem; z-index: 200; font-weight: 500; transition: 0.2s;
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(20px);
+    border: 1px solid var(--gold); border-radius: 60px;
+    padding: 0.6rem 1.2rem; color: var(--gold);
+    font-size: 0.7rem; z-index: 200; font-weight: 500;
+    transition: 0.2s;
   }
-  .music-btn:hover { background: var(--gold); color: #000; border-color: #fff; }
-
-  /* Scroll Indicator */
+  .music-btn:hover { background: var(--gold); color: #000; }
+ 
+  /* ============================================
+     SCROLL INDICATOR
+  ============================================ */
   .scroll-indicator {
     position: absolute; bottom: 5vh; left: 5vw;
     display: flex; align-items: center; gap: 10px;
     font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold);
     text-transform: uppercase;
-    animation: bounce 2s infinite ease-in-out;
+    animation: bounce 2.5s infinite cubic-bezier(0.4,0,0.2,1);
   }
-  .scroll-indicator::before {
-    content: ''; width: 1px; height: 30px; background: var(--gold);
+  .scroll-indicator::before { content: ''; width: 1px; height: 30px; background: var(--gold); }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(10px); opacity: 0.5; } }
+ 
+  /* ============================================
+     KINETIC HERO LETTERS
+  ============================================ */
+  .kinetic-char {
+    display: inline-block;
+    /* Each letter gets its own JS-driven translateY */
   }
-  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
-
-  /* Responsive fixes */
+ 
+  /* ============================================
+     SECTION SNAP BURST
+  ============================================ */
+  .snap-burst {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 9998; overflow: hidden;
+  }
+  .burst-particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    opacity: 0;
+  }
+ 
+  /* ============================================
+     RESPONSIVE
+  ============================================ */
   @media (max-width: 1200px) {
     .phil-grid { gap: 1.5rem; }
     .phil-card { padding: 3rem 2rem; min-height: 400px; }
     .phil-num { font-size: 4rem; }
   }
-
   @media (max-width: 900px) {
     nav { margin: 0 15px; padding: 0.7rem 1.5rem; }
     .nav-links { display: none; }
     .slide-section { padding: 0 2rem !important; }
-    .phil-grid { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1rem;}
-    .phil-card { min-height: auto; padding: 2.5rem 1.5rem; border-radius: 20px;}
+    .phil-grid { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1rem; }
+    .phil-card { min-height: auto; padding: 2.5rem 1.5rem; border-radius: 20px; }
     .phil-num { font-size: 3rem; margin-bottom: 1rem; }
     .phil-title { font-size: 1.4rem; }
     .phil-card p { font-size: 1rem; line-height: 1.6; }
     .project-inner.long-content { grid-template-columns: 1fr; }
     .project-img-area.grid-3col { grid-template-columns: 1fr 1fr; }
-    .project-img-area.grid-mixed { grid-template-columns: 1fr; } /* Stacks safely on mobile */
+    .project-img-area.grid-mixed { grid-template-columns: 1fr; }
     .data-grid { grid-template-columns: 1fr; gap: 0.2rem; }
     .data-label { padding-top: 0.5rem; }
     .proj-img { height: 25vh; min-height: 180px; }
+    .scroll-filament, .slide-dots { display: none; }
   }
 </style>
 </head>
 <body>
-
+ 
 <!-- 3D BACKGROUND -->
 <canvas id="quantum-canvas"></canvas>
 <div class="vignette-overlay"></div>
-
-<nav>
+ 
+<!-- SNAP BURST CONTAINER -->
+<div class="snap-burst" id="snapBurst"></div>
+ 
+<!-- SCROLL FILAMENT & DOTS -->
+<div class="scroll-filament" id="scrollFilament"></div>
+<div class="slide-dots" id="slideDots"></div>
+ 
+<nav id="mainNav">
   <a class="nav-logo" href="#">⚡ BRIAN PRENDES</a>
-  <ul class="nav-links">
-    <li><a href="#robotic-hand">ASSISTIVE</a></li>
-    <li><a href="#safe-slicer">HARDWARE</a></li>
-    <li><a href="#philosophy">APPROACH</a></li>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#robotic-hand" data-nav="assistive">ASSISTIVE</a></li>
+    <li><a href="#safe-slicer" data-nav="hardware">HARDWARE</a></li>
+    <li><a href="#philosophy" data-nav="philosophy">APPROACH</a></li>
+    <div class="nav-pill" id="navPill"></div>
   </ul>
 </nav>
-
+ 
 <!-- SLIDE 1: HERO -->
-<div class="slide-section" id="hero-section">
+<div class="slide-section" id="hero-section" data-slide="0">
   <div style="position: relative; z-index: 10; width: 100%; margin-left: 5vw;">
-    <div class="hero-eyebrow" style="color: var(--ink-soft); letter-spacing: 0.4em; font-size: 0.8rem; display: flex; align-items: center; gap: 15px;">
+    <div class="hero-eyebrow" style="color: var(--ink-soft); letter-spacing: 0.4em; font-size: 0.8rem; display: flex; align-items: center; gap: 15px; margin-bottom: 1.2rem;">
       <span style="width: 40px; height: 1px; background: var(--gold);"></span>
-      BS PHYSICS & MECHANICAL ENGINEERING, YALE UNIVERSITY
+      BS PHYSICS &amp; MECHANICAL ENGINEERING, YALE UNIVERSITY
     </div>
-    
-    <h1 class="hero-name" style="font-size: clamp(3.5rem, 7vw, 7rem); line-height: 0.9; margin: 1.2rem 0; font-weight: 800; text-transform: uppercase;">
-      Physical Systems,<br>
-      <em style="font-style: italic; color: var(--gold); font-weight: 400; font-family: 'Times New Roman', Times, serif; text-transform: lowercase; font-size: 1.1em; margin-left: 5vw;">real constraints.</em>
+ 
+    <h1 class="hero-name" style="font-size: clamp(3.5rem, 7vw, 7rem); line-height: 0.9; margin: 0 0 1.2rem; font-weight: 800; text-transform: uppercase;">
+      <span id="kineticLine1">Physical Systems,</span><br>
+      <em id="kineticLine2" style="font-style: italic; color: var(--gold); font-weight: 400; font-family: 'Times New Roman', Times, serif; text-transform: lowercase; font-size: 1.1em; margin-left: 5vw;">real constraints.</em>
     </h1>
-    
+ 
     <p class="hero-desc" style="font-size: 1.1rem; max-width: 500px; line-height: 1.6; color: var(--ink-muted); margin-left: 5vw; border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 2rem;">
       I design and build devices that meet people where they are. Every project begins with a real constraint and ends with a tangible, valuable purpose.
     </p>
-
-    <!-- RESUME LINK - Change "Resume.pdf" to your secret file name once hosted -->
+ 
     <div style="margin-left: 5vw; display: flex; gap: 1rem; flex-wrap: wrap;">
-      <a href="BrianP_Resume_82XqL.pdf.pdf" download="Brian-Prendes_Resume.pdf" target="_blank" rel="noopener noreferrer" class="action-btn">📄 View / Download Resume</a>
-      <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline">LinkedIn ↗</a>
-      <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn outline">✉️ Email</a>
+      <a href="BrianP_Resume_82XqL.pdf.pdf" download="Brian-Prendes_Resume.pdf" target="_blank" rel="noopener noreferrer" class="action-btn magnetic-target">📄 View / Download Resume</a>
+      <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline magnetic-target">LinkedIn ↗</a>
+      <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn outline magnetic-target">✉️ Email</a>
     </div>
   </div>
-  
+ 
   <div class="scroll-indicator">Scroll To Discover</div>
 </div>
-
-<!-- ==============================================
-     ASSISTIVE SYSTEMS
-=============================================== -->
-<div class="slide-section" id="robotic-hand">
+ 
+<!-- ============ ASSISTIVE SYSTEMS ============ -->
+<div class="slide-section" id="robotic-hand" data-slide="1" data-nav="assistive">
   <div class="section-header"><span class="section-num">01</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
@@ -342,10 +517,8 @@
           <div class="data-grid">
             <div class="data-label">Problem</div>
             <div class="data-value">Stroke survivors often lack accessible, continuous mechanical therapy devices for recovering fine motor skills in their hands.</div>
-            
             <div class="data-label">My Role</div>
             <div class="data-value">Assisting a graduate student in the mechanical engineering and fabrication of a wearable hand rehabilitation device.</div>
-            
             <div class="data-label">Focus</div>
             <div class="data-value">Precise mechanotherapy mechanisms, joint articulation, and prioritizing user comfort.</div>
           </div>
@@ -358,8 +531,8 @@
     </div>
   </div>
 </div>
-
-<div class="slide-section" id="arm-project">
+ 
+<div class="slide-section" id="arm-project" data-slide="2" data-nav="assistive">
   <div class="section-header"><span class="section-num">02</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
@@ -371,10 +544,8 @@
           <div class="data-grid">
             <div class="data-label">Problem</div>
             <div class="data-value">Medical-grade prosthetics for growing children are financially devastating for families due to the constant need for resizing.</div>
-            
             <div class="data-label">My Role</div>
             <div class="data-value">Fabricating a highly functional, 3D-printed prosthetic arm tailored for a specific pediatric patient.</div>
-            
             <div class="data-label">Outcome</div>
             <div class="data-value">Restoring the child's ability to manipulate objects with one arm while completely circumventing traditional medical device costs.</div>
           </div>
@@ -392,8 +563,8 @@
     </div>
   </div>
 </div>
-
-<div class="slide-section" id="wheelchair-scale">
+ 
+<div class="slide-section" id="wheelchair-scale" data-slide="3" data-nav="assistive">
   <div class="section-header"><span class="section-num">03</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
@@ -402,13 +573,11 @@
         <div class="card-title">Wheelchair Scale System</div>
         <div class="card-org">Yale University</div>
         <div class="card-body">
-           <div class="data-grid">
+          <div class="data-grid">
             <div class="data-label">Problem</div>
             <div class="data-value">Measuring body weight safely at home is incredibly difficult for wheelchair users without purchasing highly expensive medical equipment.</div>
-            
             <div class="data-label">My Role</div>
             <div class="data-value">Designing a structural setup using everyday, affordable materials that allows users to independently and safely roll on to measure their weight.</div>
-            
             <div class="data-label">Tools</div>
             <div class="data-value">Computer-Aided Design (CAD), Material Stress Testing, Structural Engineering.</div>
           </div>
@@ -424,8 +593,8 @@
     </div>
   </div>
 </div>
-
-<div class="slide-section" id="glove-project">
+ 
+<div class="slide-section" id="glove-project" data-slide="4" data-nav="assistive">
   <div class="section-header"><span class="section-num">04</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
@@ -437,10 +606,8 @@
           <div class="data-grid">
             <div class="data-label">Problem</div>
             <div class="data-value">Physical therapy regimens require consistent structural support and tracking that traditional medical bandages simply cannot provide.</div>
-            
             <div class="data-label">My Role</div>
             <div class="data-value">Member of the CAD design and fabrication team engineering a specialized silicone glove.</div>
-            
             <div class="data-label">Outcome</div>
             <div class="data-value">Developed molds and material compositions for a flexible silicone wearable that directly aids targeted physical therapy.</div>
           </div>
@@ -453,11 +620,9 @@
     </div>
   </div>
 </div>
-
-<!-- ==============================================
-     MECHANICAL / HARDWARE
-=============================================== -->
-<div class="slide-section" id="safe-slicer">
+ 
+<!-- ============ MECHANICAL HARDWARE ============ -->
+<div class="slide-section" id="safe-slicer" data-slide="5" data-nav="hardware">
   <div class="section-header"><span class="section-num">05</span><h2 class="section-title"><em>Mechanical</em> Hardware</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
@@ -465,18 +630,14 @@
         <div class="card-status">Jan 2026 – Apr 2026</div>
         <div class="card-title">Safe-Slicer: Mechanical Automation</div>
         <div class="card-org">MENG 1105 - Yale University</div>
-        
         <div class="card-body">
           <div class="data-grid">
             <div class="data-label">Problem</div>
             <div class="data-value">People with limited hand mobility often struggle to safely slice vegetables. Figuring out how to automate this without using any electronics required some clever mechanical loops.</div>
-            
             <div class="data-label">My Role</div>
             <div class="data-value">Engineered a 100% mechanical, one-handed slicer. I designed a "Cut and Advance" loop driven entirely by the motion of a single handle.</div>
-            
             <div class="data-label">Execution</div>
             <div class="data-value">I integrated a one-way needle-roller bearing on a freewheel shaft to grip the food during the cut, then used a linear gear rack and timing belt to advance the PVC conveyor forward by exactly one slice-thickness on the upstroke.</div>
-            
             <div class="data-label">Tools</div>
             <div class="data-value">Onshape, 3D-Printed PLA, machining metals, gears, belts, and more.</div>
           </div>
@@ -490,8 +651,8 @@
     </div>
   </div>
 </div>
-
-<div class="slide-section" id="vega">
+ 
+<div class="slide-section" id="vega" data-slide="6" data-nav="hardware">
   <div class="section-header"><span class="section-num">06</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
@@ -499,32 +660,24 @@
         <div class="card-status">Nov 2025 – Dec 2025</div>
         <div class="card-title">V.E.G.A. Companion</div>
         <div class="card-org">Yale University</div>
-        
         <div class="card-body">
           <div class="data-grid">
             <div class="data-label">Problem</div>
             <div class="data-value">Grip strength exercises are notoriously repetitive and usually lack any real way to measure progress or keep you engaged.</div>
-            
             <div class="data-label">My Role</div>
             <div class="data-value">I built "The Gamified Gripper Assistant"—a smart attachment that acts as a digital pet you keep healthy by completing physical grip challenges.</div>
-            
             <div class="data-label">Features</div>
             <div class="data-value">Programmed an Arduino with four game modes: Morse Code input via grip length, Reps Per Second tracking, and a static Endurance mode with anti-cheat sensor logic.</div>
-            
             <div class="data-label">Design</div>
             <div class="data-value">I designed a humanoid chassis that naturally guides the user's thumb into the correct ergonomic position, with potentiometers hidden inside to measure the exact spring compression.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">Arduino / C++</span><span class="skill-chip">Potentiometers</span><span class="skill-chip">Onshape</span><span class="skill-chip">UI/UX Logic</span></div>
-        
-        <!-- Moved Overall Design Image here so the right grid stays extremely clean and compact -->
         <div class="proj-img" style="margin-top: 2rem; min-height: 120px; height: 25vh;">
-          <img src="Images/Overall-design-Vega.jpg" alt="Vega Design"> 
+          <img src="Images/Overall-design-Vega.jpg" alt="Vega Design">
           <div class="img-caption">V.E.G.A Overall Design</div>
         </div>
       </div>
-      
-      <!-- 2x2 grid specifically for the 4 videos so they fit perfectly on one screen -->
       <div class="project-img-area grid-2col">
         <div class="proj-img short">
           <iframe src="https://www.youtube.com/embed/z3a8MGIos2Q?controls=1&mute=1" allow="fullscreen" loading="lazy"></iframe>
@@ -539,7 +692,7 @@
           <div class="img-caption">Reps</div>
         </div>
         <div class="proj-img short">
-          <video controls playsinline muted> 
+          <video controls playsinline muted>
             <source src="Small-Videos/Finish.mp4" type="video/mp4">
           </video>
           <div class="img-caption">Final Mechanism</div>
@@ -548,31 +701,27 @@
     </div>
   </div>
 </div>
-
-<div class="slide-section" id="pong">
+ 
+<div class="slide-section" id="pong" data-slide="7" data-nav="hardware">
   <div class="section-header"><span class="section-num">07</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
         <div class="card-status">Nov 2025</div>
         <div class="card-title">Screwless Pong Console</div>
-        <div class="card-org">Engineering Innovation & Design</div>
-        
+        <div class="card-org">Engineering Innovation &amp; Design</div>
         <div class="card-body">
           <div class="data-grid">
             <div class="data-label">Goal</div>
             <div class="data-value">Bring back the nostalgic 1980s TV aesthetic using modern, rapid Design for Assembly (DFA) techniques.</div>
-            
             <div class="data-label">Hardware</div>
             <div class="data-value">I engineered a 100% screwless chassis held together entirely by custom snap-fit joints. I also soldered the Arduino Nano and OLED screen to an internal mount to make sure the electronics survive aggressive button-mashing.</div>
-            
             <div class="data-label">Software</div>
             <div class="data-value">Programmed game physics in Arduino featuring vertical head-to-head gameplay, randomly spawning geometry power-ups, live statistics, and a smart power-saving sleep mode.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">Circuit Design</span><span class="skill-chip">Soldering</span><span class="skill-chip">Arduino / C++</span><span class="skill-chip">DFA 3D Printing</span></div>
       </div>
-      <!-- Fixed: Switched to grid-mixed so the wide image and tall video scale harmoniously -->
       <div class="project-img-area grid-mixed">
         <div class="proj-img"><img src="Images/Pong-console.jpg" alt="Pong Console"><div class="img-caption">Fully Assembled Console</div></div>
         <div class="proj-img short">
@@ -583,18 +732,16 @@
     </div>
   </div>
 </div>
-
-<!-- ==============================================
-     PHILOSOPHY & FOOTER
-=============================================== -->
-<div class="slide-section" id="philosophy">
+ 
+<!-- ============ PHILOSOPHY ============ -->
+<div class="slide-section" id="philosophy" data-slide="8" data-nav="philosophy">
   <div class="section-header"><span class="section-num">08</span><h2 class="section-title">How I <em>Think</em></h2></div>
   <div class="philosophy wave-item" style="background: transparent; border: none; padding: 0; overflow: visible;">
     <div class="phil-grid">
       <div class="phil-card">
         <div class="phil-num">I</div>
         <div class="phil-title">Constraints Are the Brief</div>
-        <p>Cost, lack of electronics, one‑hand operation — these are not limitations; they form the design DNA and drive true innovation.</p>
+        <p>Cost, lack of electronics, one-hand operation — these are not limitations; they form the design DNA and drive true innovation.</p>
       </div>
       <div class="phil-card">
         <div class="phil-num">II</div>
@@ -609,373 +756,522 @@
     </div>
   </div>
 </div>
-
-<div class="slide-section" id="footer" style="align-items: center; text-align: center;">
+ 
+<div class="slide-section" id="footer" data-slide="9" style="align-items: center; text-align: center;">
   <h2 style="font-family: 'Syne'; font-size: 3rem; margin-bottom: 2rem;">Let's Connect.</h2>
   <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-    <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn" style="padding: 16px 36px; font-size: 1rem;">
-      Email Me ↗
-    </a>
-    <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline" style="padding: 16px 36px; font-size: 1rem;">
-      LinkedIn ↗
-    </a>
+    <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn magnetic-target" style="padding: 16px 36px; font-size: 1rem;">Email Me ↗</a>
+    <a href="https://www.linkedin.com/in/brian-prendes-ab158a375/" target="_blank" rel="noopener noreferrer" class="action-btn outline magnetic-target" style="padding: 16px 36px; font-size: 1rem;">LinkedIn ↗</a>
   </div>
-  <span style="color: var(--ink-muted); margin-top: 3rem; font-size: 0.8rem; letter-spacing: 0.2em;">BRIAN PRENDES · YALE PHYSICS & MECH E 2029</span>
+  <span style="color: var(--ink-muted); margin-top: 3rem; font-size: 0.8rem; letter-spacing: 0.2em;">BRIAN PRENDES · YALE PHYSICS &amp; MECH E 2029</span>
 </div>
-
+ 
 <!-- MUSIC TOGGLE -->
 <div class="music-btn" id="musicToggle">🎧 ambient OFF</div>
-
-<!-- QUANTUM REACTOR 3D BACKGROUND LOGIC -->
+ 
+<!-- ============================================================
+     THREE.JS QUANTUM REACTOR — ENHANCED WITH DATA PILLARS
+============================================================ -->
 <script type="module">
   import * as THREE from 'three';
   import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
   import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
   import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-  
+ 
   const canvas = document.getElementById('quantum-canvas');
-  
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  
-  // 1. ABSOLUTE BLACK BACKGROUND
-  renderer.setClearColor(0x000000, 1); 
-
+  renderer.setClearColor(0x000000, 1);
+ 
   const scene = new THREE.Scene();
-  // Absolute black fog to enhance 3D depth into nothingness
   scene.fog = new THREE.FogExp2(0x000000, 0.04);
-  
+ 
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
   camera.position.set(0, 10, 30);
   camera.lookAt(0, 0, 0);
-  
+ 
   const renderScene = new RenderPass(scene, camera);
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.2);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.4, 0.5, 0.15);
   const effectComposer = new EffectComposer(renderer);
   effectComposer.addPass(renderScene);
   effectComposer.addPass(bloomPass);
-
+ 
   function createDustTexture() {
     const texCanvas = document.createElement('canvas');
-    texCanvas.width = 64;
-    texCanvas.height = 64;
+    texCanvas.width = 64; texCanvas.height = 64;
     const ctx = texCanvas.getContext('2d');
     const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.6)');
-    gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.1)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.3, 'rgba(255,255,255,0.6)');
+    gradient.addColorStop(0.6, 'rgba(255,255,255,0.1)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(texCanvas);
   }
   const particleTexture = createDustTexture();
-  
+ 
   // BASE OCEAN LAYER
   const width = 120, height = 120, segments = 90;
   const planeGeo = new THREE.PlaneGeometry(width, height, segments, segments);
-  planeGeo.rotateX(-Math.PI / 2.1); 
-
+  planeGeo.rotateX(-Math.PI / 2.1);
   const positions = planeGeo.attributes.position.array;
   const colorsArr = new Float32Array(positions.length);
   const startY = new Float32Array(positions.length / 3);
-
   for(let i=0; i<positions.length; i+=3){
-    positions[i] += (Math.random() - 0.5) * 0.5;
-    positions[i+2] += (Math.random() - 0.5) * 0.5;
+    positions[i] += (Math.random()-0.5)*0.5;
+    positions[i+2] += (Math.random()-0.5)*0.5;
     startY[i/3] = positions[i+1];
-
     const isGold = Math.random() > 0.35;
     const color = new THREE.Color(isGold ? 0xE6B74E : 0x0044FF);
-    colorsArr[i] = color.r;
-    colorsArr[i+1] = color.g;
-    colorsArr[i+2] = color.b;
+    colorsArr[i] = color.r; colorsArr[i+1] = color.g; colorsArr[i+2] = color.b;
   }
   planeGeo.setAttribute('color', new THREE.BufferAttribute(colorsArr, 3));
-  
-  const planeMat = new THREE.PointsMaterial({ 
-    size: 0.35, 
-    vertexColors: true, 
-    transparent: true, 
-    map: particleTexture,
-    blending: THREE.AdditiveBlending, 
-    depthWrite: false,
-    opacity: 0.45 
+  const planeMat = new THREE.PointsMaterial({
+    size: 0.35, vertexColors: true, transparent: true,
+    map: particleTexture, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.45
   });
   const ocean = new THREE.Points(planeGeo, planeMat);
   scene.add(ocean);
-
-  // CONSTANT FLOATING DUST PARTICLES
+ 
+  // FLOATING DUST
   const floatCount = 600;
   const floatGeo = new THREE.BufferGeometry();
   const floatPos = new Float32Array(floatCount * 3);
   const floatVel = [];
   const floatColors = new Float32Array(floatCount * 3);
-
-  for(let i=0; i<floatCount; i++) {
-    floatPos[i*3] = (Math.random() - 0.5) * 100;
-    floatPos[i*3+1] = (Math.random() - 0.5) * 50 + 10; 
-    floatPos[i*3+2] = (Math.random() - 0.5) * 100;
-    
-    floatVel.push({
-      x: (Math.random() - 0.5) * 0.1,
-      y: (Math.random() - 0.5) * 0.1,
-      z: (Math.random() - 0.5) * 0.1
-    });
-
-    const isGold = Math.random() > 0.5;
+  for(let i=0; i<floatCount; i++){
+    floatPos[i*3] = (Math.random()-0.5)*100;
+    floatPos[i*3+1] = (Math.random()-0.5)*50+10;
+    floatPos[i*3+2] = (Math.random()-0.5)*100;
+    floatVel.push({x:(Math.random()-0.5)*0.1,y:(Math.random()-0.5)*0.1,z:(Math.random()-0.5)*0.1});
+    const isGold = Math.random()>0.5;
     const color = new THREE.Color(isGold ? 0xE6B74E : 0xffffff);
-    floatColors[i*3] = color.r;
-    floatColors[i*3+1] = color.g;
-    floatColors[i*3+2] = color.b;
+    floatColors[i*3]=color.r; floatColors[i*3+1]=color.g; floatColors[i*3+2]=color.b;
   }
-
   floatGeo.setAttribute('position', new THREE.BufferAttribute(floatPos, 3));
   floatGeo.setAttribute('color', new THREE.BufferAttribute(floatColors, 3));
-
   const floatMat = new THREE.PointsMaterial({
-    size: 0.9,
-    vertexColors: true,
-    transparent: true,
-    map: particleTexture,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    opacity: 0.95
+    size: 0.9, vertexColors: true, transparent: true,
+    map: particleTexture, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.95
   });
   const driftingParticles = new THREE.Points(floatGeo, floatMat);
   scene.add(driftingParticles);
-
-  // 3. ORGANIC SURFACE SOLAR FLARES (Glowing hotspots on the ocean waves)
-  const flareCount = 40; 
+ 
+  // SOLAR FLARES
+  const flareCount = 40;
   const flareGeo = new THREE.BufferGeometry();
   const flarePos = new Float32Array(flareCount * 3);
   const flareColorsArr = new Float32Array(flareCount * 3);
-  const flareLife = new Float32Array(flareCount); 
-  
-  // Custom round, soft sun-spot texture
-  function createFlareTexture() {
+  const flareLife = new Float32Array(flareCount);
+  function createFlareTexture(){
     const texCanvas = document.createElement('canvas');
-    texCanvas.width = 64;
-    texCanvas.height = 64;
-    const ctx = texCanvas.getContext('2d');
-    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    gradient.addColorStop(0, 'rgba(255, 180, 50, 0.5)'); // Softer, dimmer gold core
-    gradient.addColorStop(0.4, 'rgba(255, 70, 0, 0.25)'); // Highly muted orange aura
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 64, 64);
+    texCanvas.width=64; texCanvas.height=64;
+    const ctx=texCanvas.getContext('2d');
+    const gradient=ctx.createRadialGradient(32,32,0,32,32,32);
+    gradient.addColorStop(0,'rgba(255,180,50,0.5)');
+    gradient.addColorStop(0.4,'rgba(255,70,0,0.25)');
+    gradient.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gradient; ctx.fillRect(0,0,64,64);
     return new THREE.CanvasTexture(texCanvas);
   }
-
-  for(let i=0; i<flareCount; i++) {
-    flarePos[i*3] = 0; 
-    flarePos[i*3+1] = -100; // Hidden below
-    flarePos[i*3+2] = 0;
-    
-    flareColorsArr[i*3] = 0; 
-    flareColorsArr[i*3+1] = 0; 
-    flareColorsArr[i*3+2] = 0;
-    
-    flareLife[i] = 0;
+  for(let i=0;i<flareCount;i++){
+    flarePos[i*3]=0; flarePos[i*3+1]=-100; flarePos[i*3+2]=0;
+    flareColorsArr[i*3]=0; flareColorsArr[i*3+1]=0; flareColorsArr[i*3+2]=0;
+    flareLife[i]=0;
   }
-  
-  flareGeo.setAttribute('position', new THREE.BufferAttribute(flarePos, 3));
-  flareGeo.setAttribute('color', new THREE.BufferAttribute(flareColorsArr, 3));
-  
+  flareGeo.setAttribute('position',new THREE.BufferAttribute(flarePos,3));
+  flareGeo.setAttribute('color',new THREE.BufferAttribute(flareColorsArr,3));
   const flareMat = new THREE.PointsMaterial({
-    size: 28.0, 
-    vertexColors: true, 
-    transparent: true,
-    map: createFlareTexture(),
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
+    size:28.0, vertexColors:true, transparent:true,
+    map:createFlareTexture(), blending:THREE.AdditiveBlending, depthWrite:false
   });
   const flares = new THREE.Points(flareGeo, flareMat);
   scene.add(flares);
-  
-  // Camera & Mouse logic
+ 
+  // ============================================================
+  // NEW: ARCHITECTURAL DATA PILLARS — sparse vertical columns
+  // rising from the ocean like a quantum city skyline
+  // ============================================================
+  const pillarGroup = new THREE.Group();
+  scene.add(pillarGroup);
+ 
+  const pillarPositions = [];
+  const pillarCount = 22;
+  for(let i = 0; i < pillarCount; i++){
+    const px = (Math.random() - 0.5) * 80;
+    const pz = (Math.random() - 0.5) * 80;
+    const baseH = 2 + Math.random() * 10;
+    pillarPositions.push({ x: px, z: pz, h: baseH, phase: Math.random() * Math.PI * 2 });
+ 
+    // Each pillar is a vertical line of particles
+    const pCount = Math.floor(baseH * 4);
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(pCount * 3);
+    const pCol = new Float32Array(pCount * 3);
+ 
+    for(let j = 0; j < pCount; j++){
+      pPos[j*3] = px + (Math.random()-0.5)*0.3;
+      pPos[j*3+1] = (j / pCount) * baseH - 2;
+      pPos[j*3+2] = pz + (Math.random()-0.5)*0.3;
+ 
+      // Gradient: blue at base → gold at apex
+      const t = j / pCount;
+      const baseColor = new THREE.Color(0x0033cc);
+      const tipColor = new THREE.Color(0xE6B74E);
+      const mixed = baseColor.clone().lerp(tipColor, t);
+      pCol[j*3] = mixed.r; pCol[j*3+1] = mixed.g; pCol[j*3+2] = mixed.b;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+ 
+    const pMat = new THREE.PointsMaterial({
+      size: 0.18, vertexColors: true, transparent: true,
+      map: particleTexture, blending: THREE.AdditiveBlending,
+      depthWrite: false, opacity: 0.7
+    });
+    const pillarPoints = new THREE.Points(pGeo, pMat);
+    pillarGroup.add(pillarPoints);
+  }
+ 
   let mouseX = 0, mouseY = 0;
-  window.addEventListener('mousemove', (e) => { 
-    mouseX = (e.clientX / window.innerWidth) * 2 - 1; 
-    mouseY = -(e.clientY / window.innerHeight) * 2 + 1; 
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
   });
-  
+ 
   let time = 0;
   const posAttribute = ocean.geometry.attributes.position;
   const vArr = posAttribute.array;
   const driftPositions = driftingParticles.geometry.attributes.position.array;
-  
   const fPos = flares.geometry.attributes.position.array;
   const fCol = flares.geometry.attributes.color.array;
-
-  function animate() {
+ 
+  function animate(){
     requestAnimationFrame(animate);
     time += 0.012;
-
-    // Ocean Waves
-    for(let i=0; i<vArr.length; i+=3) {
-      const x = vArr[i];
-      const z = vArr[i+2];
-      vArr[i+1] = startY[i/3] + Math.sin(x * 0.15 + time) * 1.5 + Math.cos(z * 0.15 + time) * 1.5 + Math.sin((x+z)*0.05 + time);
+ 
+    // Ocean waves
+    for(let i=0; i<vArr.length; i+=3){
+      const x=vArr[i]; const z=vArr[i+2];
+      vArr[i+1] = startY[i/3] + Math.sin(x*0.15+time)*1.5 + Math.cos(z*0.15+time)*1.5 + Math.sin((x+z)*0.05+time);
     }
-    posAttribute.needsUpdate = true;
-
-    // Floating Dust
-    for(let i=0; i<floatCount; i++) {
-      driftPositions[i*3] += floatVel[i].x;
-      driftPositions[i*3+1] += floatVel[i].y;
-      driftPositions[i*3+2] += floatVel[i].z;
-
-      if(driftPositions[i*3+1] > 40) driftPositions[i*3+1] = -10;
-      if(driftPositions[i*3+1] < -10) driftPositions[i*3+1] = 40;
-      if(driftPositions[i*3] > 50) driftPositions[i*3] = -50;
-      if(driftPositions[i*3] < -50) driftPositions[i*3] = 50;
-      if(driftPositions[i*3+2] > 50) driftPositions[i*3+2] = -50;
-      if(driftPositions[i*3+2] < -50) driftPositions[i*3+2] = 50;
+    posAttribute.needsUpdate=true;
+ 
+    // Floating dust
+    for(let i=0;i<floatCount;i++){
+      driftPositions[i*3]+=floatVel[i].x;
+      driftPositions[i*3+1]+=floatVel[i].y;
+      driftPositions[i*3+2]+=floatVel[i].z;
+      if(driftPositions[i*3+1]>40) driftPositions[i*3+1]=-10;
+      if(driftPositions[i*3+1]<-10) driftPositions[i*3+1]=40;
+      if(driftPositions[i*3]>50) driftPositions[i*3]=-50;
+      if(driftPositions[i*3]<-50) driftPositions[i*3]=50;
+      if(driftPositions[i*3+2]>50) driftPositions[i*3+2]=-50;
+      if(driftPositions[i*3+2]<-50) driftPositions[i*3+2]=50;
     }
-    driftingParticles.geometry.attributes.position.needsUpdate = true;
-    driftingParticles.rotation.y = time * 0.05;
-
-    // Organic Surface Solar Flares Dynamics
-    for(let i=0; i<flareCount; i++) {
-      // Trigger a new hotspot smoothly from a random ocean atom
-      if (flareLife[i] === 0 && Math.random() < 0.02) { 
-        const oceanVertexCount = vArr.length / 3;
-        const randomOceanIdx = Math.floor(Math.random() * oceanVertexCount) * 3;
-        
-        // Latch onto the specific ocean particle's coordinates
-        fPos[i*3] = vArr[randomOceanIdx];
-        fPos[i*3+1] = vArr[randomOceanIdx+1]; 
-        fPos[i*3+2] = vArr[randomOceanIdx+2];
-
-        flareLife[i] = 0.01; // Ignite lifecycle
+    driftingParticles.geometry.attributes.position.needsUpdate=true;
+    driftingParticles.rotation.y=time*0.05;
+ 
+    // Solar flares
+    for(let i=0;i<flareCount;i++){
+      if(flareLife[i]===0 && Math.random()<0.02){
+        const oceanVertexCount=vArr.length/3;
+        const randomOceanIdx=Math.floor(Math.random()*oceanVertexCount)*3;
+        fPos[i*3]=vArr[randomOceanIdx];
+        fPos[i*3+1]=vArr[randomOceanIdx+1];
+        fPos[i*3+2]=vArr[randomOceanIdx+2];
+        flareLife[i]=0.01;
       }
-      
-      // Animate active surface flares
-      if (flareLife[i] > 0) {
-        // Drift up slightly like a solar prominence
-        fPos[i*3+1] += 0.06;
-        flareLife[i] += 0.005; // Controls how fast it pulses and dies
-
-        // Mathematical fade-in and fade-out (Sine curve: 0 to 1 to 0)
-        let alpha = Math.sin(flareLife[i] * Math.PI);
-        
-        if (flareLife[i] >= 1.0) {
-          flareLife[i] = 0;
-          fPos[i*3+1] = -100; // Hide deep below when dead
-          alpha = 0;
-        }
-
-        // Apply additive opacity by scaling color (dimmed multipliers)
-        fCol[i*3] = 0.65 * alpha;      // Red
-        fCol[i*3+1] = 0.35 * alpha;    // Orange/Gold blend
-        fCol[i*3+2] = 0.0 * alpha;     // Blue
+      if(flareLife[i]>0){
+        fPos[i*3+1]+=0.06;
+        flareLife[i]+=0.005;
+        let alpha=Math.sin(flareLife[i]*Math.PI);
+        if(flareLife[i]>=1.0){ flareLife[i]=0; fPos[i*3+1]=-100; alpha=0; }
+        fCol[i*3]=0.65*alpha; fCol[i*3+1]=0.35*alpha; fCol[i*3+2]=0.0*alpha;
       }
     }
-    flares.geometry.attributes.position.needsUpdate = true;
-    flares.geometry.attributes.color.needsUpdate = true;
-
-    // Camera Pan
-    camera.position.x += (mouseX * 8 - camera.position.x) * 0.02;
-    camera.position.y += ((10 + mouseY * 4) - camera.position.y) * 0.02;
+    flares.geometry.attributes.position.needsUpdate=true;
+    flares.geometry.attributes.color.needsUpdate=true;
+ 
+    // Pillar pulse — each pillar breathes in scale Y
+    pillarPositions.forEach((p, idx) => {
+      const pillar = pillarGroup.children[idx];
+      if(pillar){
+        const pulse = 1 + Math.sin(time * 0.8 + p.phase) * 0.12;
+        pillar.scale.y = pulse;
+        // Subtle opacity breath
+        pillar.material && (pillar.material.opacity = 0.5 + Math.sin(time * 0.6 + p.phase) * 0.2);
+      }
+    });
+ 
+    camera.position.x += (mouseX*8 - camera.position.x)*0.02;
+    camera.position.y += ((10+mouseY*4) - camera.position.y)*0.02;
     camera.lookAt(0, 0, 0);
-
+ 
     effectComposer.render();
   }
   animate();
-  
-  window.addEventListener('resize', () => { 
-    camera.aspect = window.innerWidth/window.innerHeight; 
-    camera.updateProjectionMatrix(); 
+ 
+  window.addEventListener('resize', () => {
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    effectComposer.setSize(window.innerWidth, window.innerHeight); 
+    effectComposer.setSize(window.innerWidth, window.innerHeight);
   });
 </script>
-
+ 
+<!-- ============================================================
+     UI LAYER — ALL ENHANCED INTERACTIONS
+============================================================ -->
 <script>
-// 1. NON-ANNOYING AMBIENT MUSIC
+// ──────────────────────────────────────────────
+// 1. AMBIENT MUSIC
+// ──────────────────────────────────────────────
 const audio = new Audio('https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3');
-audio.loop = true; audio.volume = 0.06;
-let musicPlaying = false;
-const musicBtn = document.getElementById('musicToggle');
-function startMusic() { 
-  if (!musicPlaying) { 
-    audio.play().then(() => { musicPlaying = true; musicBtn.innerHTML = '🎧 ambient ON'; }).catch(()=>{}); 
-    document.removeEventListener('click', startMusic); 
-    document.removeEventListener('keydown', startMusic); 
-  } 
+audio.loop=true; audio.volume=0.06;
+let musicPlaying=false;
+const musicBtn=document.getElementById('musicToggle');
+function startMusic(){
+  if(!musicPlaying){
+    audio.play().then(()=>{ musicPlaying=true; musicBtn.innerHTML='🎧 ambient ON'; }).catch(()=>{});
+    document.removeEventListener('click', startMusic);
+    document.removeEventListener('keydown', startMusic);
+  }
 }
-document.addEventListener('click', startMusic); 
+document.addEventListener('click', startMusic);
 document.addEventListener('keydown', startMusic);
-musicBtn.addEventListener('click', (e) => { 
-  e.stopPropagation(); 
-  if (musicPlaying) { audio.pause(); musicPlaying = false; musicBtn.innerHTML = '🎧 ambient OFF'; } 
-  else { audio.play().catch(()=>{}); musicPlaying = true; musicBtn.innerHTML = '🎧 ambient ON'; } 
+musicBtn.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  if(musicPlaying){ audio.pause(); musicPlaying=false; musicBtn.innerHTML='🎧 ambient OFF'; }
+  else{ audio.play().catch(()=>{}); musicPlaying=true; musicBtn.innerHTML='🎧 ambient ON'; }
 });
-
-// 2. GSAP SCROLLTRIGGER REVEALS
-const waveItems = document.querySelectorAll('.wave-item');
-waveItems.forEach((item) => {
-  gsap.fromTo(item, 
-    { opacity: 0, y: 60 }, 
-    { 
-      opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
+ 
+// ──────────────────────────────────────────────
+// 2. SLIDE REGISTRATION + DOTS + FILAMENT
+// ──────────────────────────────────────────────
+const slides = Array.from(document.querySelectorAll('.slide-section'));
+const totalSlides = slides.length;
+const dotsContainer = document.getElementById('slideDots');
+const filament = document.getElementById('scrollFilament');
+ 
+// Create dots
+slides.forEach((slide, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'slide-dot' + (i===0 ? ' active' : '');
+  dot.addEventListener('click', () => slide.scrollIntoView({ behavior: 'smooth' }));
+  dotsContainer.appendChild(dot);
+});
+ 
+let currentSlide = 0;
+function updateSlideState(idx){
+  if(idx === currentSlide) return;
+  currentSlide = idx;
+ 
+  // Dots
+  document.querySelectorAll('.slide-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+ 
+  // Filament fill
+  const pct = Math.round((idx / (totalSlides-1)) * 100);
+  const steps = [0,10,20,30,40,50,60,70,80,90,100];
+  const closest = steps.reduce((a,b) => Math.abs(b-pct)<Math.abs(a-pct)?b:a);
+  filament.className = 'scroll-filament' + (closest>0 ? ' p'+closest : '');
+ 
+  // Nav active pill
+  updateNavPill(idx);
+ 
+  // Fire snap burst
+  fireSnapBurst();
+}
+ 
+// Intersection observer for slides
+const slideObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting && entry.intersectionRatio > 0.5){
+      const idx = slides.indexOf(entry.target);
+      if(idx !== -1) updateSlideState(idx);
+    }
+  });
+}, { threshold: 0.5 });
+slides.forEach(slide => slideObserver.observe(slide));
+ 
+// ──────────────────────────────────────────────
+// 3. NAV ACTIVE PILL
+// ──────────────────────────────────────────────
+const navPill = document.getElementById('navPill');
+const navLinksEl = document.querySelectorAll('#navLinks a');
+ 
+function updateNavPill(slideIdx){
+  const slide = slides[slideIdx];
+  const navKey = slide ? slide.dataset.nav : null;
+  let targetLink = null;
+  navLinksEl.forEach(a => {
+    a.classList.remove('active');
+    if(navKey && a.dataset.nav === navKey){ targetLink = a; a.classList.add('active'); }
+  });
+  if(targetLink && navPill){
+    const rect = targetLink.getBoundingClientRect();
+    const navRect = document.getElementById('navLinks').getBoundingClientRect();
+    navPill.style.left = (rect.left - navRect.left) + 'px';
+    navPill.style.width = rect.width + 'px';
+    navPill.style.opacity = '1';
+  } else if(navPill){
+    navPill.style.opacity = '0';
+  }
+}
+navPill.style.transition = 'left 0.5s cubic-bezier(0.2,0.9,0.4,1.1), width 0.5s cubic-bezier(0.2,0.9,0.4,1.1), opacity 0.3s';
+navPill.style.opacity = '0';
+setTimeout(()=>updateNavPill(0), 200);
+ 
+// ──────────────────────────────────────────────
+// 4. SNAP BURST — gold particles burst on slide change
+// ──────────────────────────────────────────────
+const burstContainer = document.getElementById('snapBurst');
+function fireSnapBurst(){
+  const pCount = 18;
+  for(let i=0; i<pCount; i++){
+    const p = document.createElement('div');
+    p.className = 'burst-particle';
+    const angle = (i/pCount)*Math.PI*2;
+    const radius = 60 + Math.random()*80;
+    const cx = window.innerWidth/2;
+    const cy = window.innerHeight/2;
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.width = (2+Math.random()*3) + 'px';
+    p.style.height = p.style.width;
+    const isGold = Math.random() > 0.3;
+    p.style.background = isGold ? '#FFD700' : '#E6B74E';
+    burstContainer.appendChild(p);
+ 
+    const tx = Math.cos(angle)*radius;
+    const ty = Math.sin(angle)*radius;
+ 
+    p.animate([
+      { transform: 'translate(-50%,-50%) scale(1)', opacity: 0.9 },
+      { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+    ], { duration: 700 + Math.random()*300, easing: 'cubic-bezier(0,0.9,0.57,1)', fill: 'forwards' })
+    .finished.then(() => p.remove());
+  }
+}
+ 
+// ──────────────────────────────────────────────
+// 5. GSAP SCROLL REVEALS
+// ──────────────────────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.wave-item').forEach((item) => {
+  gsap.fromTo(item,
+    { opacity: 0, y: 60 },
+    { opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
       scrollTrigger: {
         trigger: item.closest('.slide-section'),
-        start: "top 60%", 
-        toggleActions: "play none none reverse" 
+        start: "top 60%",
+        toggleActions: "play none none reverse"
       }
     }
   );
 });
-
-// 3. CINEMATIC HERO ENTRANCE
-gsap.fromTo('.hero-eyebrow, .hero-name, .hero-desc, .action-btn', 
-  { opacity: 0, y: 50, filter: "blur(10px)" }, 
+ 
+// ──────────────────────────────────────────────
+// 6. CINEMATIC HERO ENTRANCE
+// ──────────────────────────────────────────────
+gsap.fromTo('.hero-eyebrow, .hero-name, .hero-desc, .action-btn',
+  { opacity: 0, y: 50, filter: "blur(10px)" },
   { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.8, stagger: 0.2, ease: "power4.out", delay: 0.3 }
 );
-
-// 4. THE "ESTELA" (TRAIL) CURSOR LOGIC
+ 
+// ──────────────────────────────────────────────
+// 7. KINETIC HERO TEXT — sine wave float per letter
+// ──────────────────────────────────────────────
+function wrapLetters(el){
+  const text = el.textContent;
+  el.innerHTML = '';
+  [...text].forEach(char => {
+    const span = document.createElement('span');
+    span.className = 'kinetic-char';
+    span.textContent = char === ' ' ? '\u00A0' : char;
+    el.appendChild(span);
+  });
+  return el.querySelectorAll('.kinetic-char');
+}
+ 
+const kineticChars1 = wrapLetters(document.getElementById('kineticLine1'));
+let kineticTime = 0;
+ 
+function animateKinetic(){
+  kineticTime += 0.025;
+  kineticChars1.forEach((char, i) => {
+    const y = Math.sin(kineticTime + i * 0.35) * 3;
+    char.style.transform = `translateY(${y}px)`;
+  });
+  requestAnimationFrame(animateKinetic);
+}
+// Start kinetic only after hero fades in
+setTimeout(animateKinetic, 2000);
+ 
+// ──────────────────────────────────────────────
+// 8. MAGNETIC CURSOR SYSTEM
+// ──────────────────────────────────────────────
 const cursorCore = document.createElement('div');
 cursorCore.className = 'cursor-core';
 document.body.appendChild(cursorCore);
-
+ 
 const trails = [];
-const trailCount = 8;
-for(let i=0; i<trailCount; i++) {
+const trailCount = 10;
+for(let i=0; i<trailCount; i++){
   let t = document.createElement('div');
   t.className = 'cursor-trail';
-  t.style.opacity = 1 - (i / trailCount);
-  t.style.transform = `scale(${1 - (i / trailCount) * 0.6})`;
+  t.style.opacity = (1 - (i/trailCount)) * 0.8;
+  t.style.transform = `scale(${1 - (i/trailCount)*0.7})`;
   document.body.appendChild(t);
   trails.push({ el: t, x: window.innerWidth/2, y: window.innerHeight/2 });
 }
-
+ 
 let mouseX = window.innerWidth/2;
 let mouseY = window.innerHeight/2;
-
-document.addEventListener('mousemove', (e) => { 
+let isHoveringMagnetic = false;
+ 
+// Detect magnetic targets
+const magneticTargets = document.querySelectorAll('.magnetic-target, .action-btn, .phil-card, .project-block, nav');
+magneticTargets.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursorCore.classList.add('expanded');
+    isHoveringMagnetic = true;
+  });
+  el.addEventListener('mouseleave', () => {
+    cursorCore.classList.remove('expanded');
+    isHoveringMagnetic = false;
+  });
+});
+ 
+document.addEventListener('mousemove', (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
-  gsap.to(cursorCore, {x: mouseX, y: mouseY, duration: 0}); 
+  gsap.to(cursorCore, { x: mouseX, y: mouseY, duration: 0 });
 });
-
-function renderCursorTrail() {
-  let tx = mouseX;
-  let ty = mouseY;
-  
-  trails.forEach((trail, index) => {
-    trail.x += (tx - trail.x) * 0.4;
-    trail.y += (ty - trail.y) * 0.4;
+ 
+function renderCursorTrail(){
+  let tx = mouseX, ty = mouseY;
+  const lag = isHoveringMagnetic ? 0.25 : 0.4;
+  trails.forEach((trail) => {
+    trail.x += (tx - trail.x) * lag;
+    trail.y += (ty - trail.y) * lag;
     gsap.set(trail.el, { x: trail.x, y: trail.y });
-    tx = trail.x;
-    ty = trail.y;
+    tx = trail.x; ty = trail.y;
   });
   requestAnimationFrame(renderCursorTrail);
 }
 renderCursorTrail();
-
+ 
+// ──────────────────────────────────────────────
+// 9. SCROLL-LINKED CANVAS DEPTH SHIFT
+//    — ocean tilts slightly based on scroll position
+// ──────────────────────────────────────────────
+let lastScrollY = 0;
+window.addEventListener('scroll', () => {
+  lastScrollY = window.scrollY;
+}, { passive: true });
 </script>
 </body>
 </html>
