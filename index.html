@@ -147,7 +147,6 @@
     pointer-events: none; z-index: 10000;
     margin-left: -5px; margin-top: -5px;
     box-shadow: 0 0 15px 4px rgba(255, 215, 0, 0.8), 0 0 30px rgba(230, 183, 78, 0.5);
-    /* Scale on hover targets via JS */
     transition: width 0.3s, height 0.3s, border-radius 0.3s, margin 0.3s, background 0.3s;
   }
   .cursor-core.expanded {
@@ -189,7 +188,6 @@
   }
   .nav-links { display: flex; gap: 2rem; list-style: none; position: relative; }
  
-  /* Active nav pill */
   .nav-pill {
     position: absolute;
     bottom: -8px;
@@ -254,13 +252,11 @@
     scrollbar-width: thin;
     scrollbar-color: var(--gold) transparent;
     position: relative;
-    /* Inner glow via box-shadow inset */
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 0 transparent;
   }
   .project-block::-webkit-scrollbar { width: 6px; }
   .project-block::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
  
-  /* Second inner border pseudo element for depth */
   .project-block::before {
     content: '';
     position: absolute;
@@ -271,7 +267,6 @@
     transition: border-color 0.5s;
   }
  
-  /* Chromatic aberration on hover */
   .project-block:hover {
     border-color: rgba(230,183,78,0.6);
     transform: translateY(-4px);
@@ -361,7 +356,6 @@
     backdrop-filter: blur(8px); display: flex; flex-direction: column; justify-content: center;
     min-height: 480px; position: relative; overflow: hidden;
   }
-  /* Radial shine on hover */
   .phil-card::after {
     content: '';
     position: absolute;
@@ -407,10 +401,7 @@
   /* ============================================
      KINETIC HERO LETTERS
   ============================================ */
-  .kinetic-char {
-    display: inline-block;
-    /* Each letter gets its own JS-driven translateY */
-  }
+  .kinetic-char { display: inline-block; }
  
   /* ============================================
      SECTION SNAP BURST
@@ -456,21 +447,18 @@
 </head>
 <body>
  
-<!-- 3D BACKGROUND -->
 <canvas id="quantum-canvas"></canvas>
 <div class="vignette-overlay"></div>
  
-<!-- SNAP BURST CONTAINER -->
 <div class="snap-burst" id="snapBurst"></div>
  
-<!-- SCROLL FILAMENT & DOTS -->
 <div class="scroll-filament" id="scrollFilament"></div>
 <div class="slide-dots" id="slideDots"></div>
  
 <nav id="mainNav">
   <a class="nav-logo" href="#">⚡ BRIAN PRENDES</a>
   <ul class="nav-links" id="navLinks">
-    <li><a href="#robotic-hand" data-nav="assistive">ASSISTIVE</a></li>
+    <li><a href="#arm-project" data-nav="assistive">ASSISTIVE</a></li>
     <li><a href="#safe-slicer" data-nav="hardware">HARDWARE</a></li>
     <li><a href="#philosophy" data-nav="philosophy">APPROACH</a></li>
     <div class="nav-pill" id="navPill"></div>
@@ -505,49 +493,26 @@
 </div>
  
 <!-- ============ ASSISTIVE SYSTEMS ============ -->
-<div class="slide-section" id="robotic-hand" data-slide="1" data-nav="assistive">
+<div class="slide-section" id="arm-project" data-slide="1" data-nav="assistive">
   <div class="section-header"><span class="section-num">01</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
-  <div class="project-block wave-item">
-    <div class="project-inner long-content">
-      <div class="text-content">
-        <div class="card-status">Mar 2026 – Impending</div>
-        <div class="card-title">Stroke Rehabilitation Hand</div>
-        <div class="card-org">Yale University (Collaborative)</div>
-        <div class="card-body">
-          <div class="data-grid">
-            <div class="data-label">Problem</div>
-            <div class="data-value">Stroke survivors often lack accessible, continuous mechanical therapy devices for recovering fine motor skills in their hands.</div>
-            <div class="data-label">My Role</div>
-            <div class="data-value">Assisting a graduate student in the mechanical engineering and fabrication of a wearable hand rehabilitation device.</div>
-            <div class="data-label">Focus</div>
-            <div class="data-value">Precise mechanotherapy mechanisms, joint articulation, and prioritizing user comfort.</div>
-          </div>
-        </div>
-        <div class="card-skills"><span class="skill-chip">Rehabilitation Robotics</span><span class="skill-chip">Mechanotherapy</span></div>
-      </div>
-      <div class="project-img-area">
-        <div class="placeholder-box">More fixes are to follow...</div>
-      </div>
-    </div>
-  </div>
-</div>
- 
-<div class="slide-section" id="arm-project" data-slide="2" data-nav="assistive">
-  <div class="section-header"><span class="section-num">02</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
         <div class="card-status">Feb 2026 – Impending</div>
         <div class="card-title">Pediatric Prosthetic Arm</div>
-        <div class="card-org">Independent / Collaborative</div>
+        <div class="card-org">Independent Project, in collaboration with patient family</div>
         <div class="card-body">
           <div class="data-grid">
-            <div class="data-label">Problem</div>
-            <div class="data-value">Medical-grade prosthetics for growing children are financially devastating for families due to the constant need for resizing.</div>
+            <div class="data-label">Context</div>
+            <div class="data-value">Self-initiated after connecting with a family whose child needed a below-elbow prosthetic. Commercial pediatric devices run into the tens of thousands of dollars and have to be replaced every 6–12 months as a child grows, which puts them out of reach for most families.</div>
             <div class="data-label">My Role</div>
-            <div class="data-value">Fabricating a highly functional, 3D-printed prosthetic arm tailored for a specific pediatric patient.</div>
+            <div class="data-value">Sole designer and fabricator. I owned the project end to end: measuring the patient, modeling the limb in CAD, printing and fitting every iteration, and handing off the final device directly to the family.</div>
+            <div class="data-label">What / How</div>
+            <div class="data-value">Modeled a body-powered, cable-driven hand in Onshape, then produced it on an FDM printer in PETG for durability. I ran three fitting sessions, adjusting socket geometry and cable tension each time based on how the patient actually gripped objects.</div>
+            <div class="data-label">Why</div>
+            <div class="data-value">I chose a fully mechanical, cable-actuated grip over a motorized one because it needs no batteries or electronics to maintain, and because a socket-only resize (rather than remaking the whole limb) is what actually keeps the ongoing cost near zero as the child grows — which was the entire point of the project.</div>
             <div class="data-label">Outcome</div>
-            <div class="data-value">Restoring the child's ability to manipulate objects with one arm while completely circumventing traditional medical device costs.</div>
+            <div class="data-value">Delivered a functioning device that restored the ability to grasp and manipulate everyday objects with the affected arm, at a fraction of the cost of a comparable medical prosthetic.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">FDM 3D Printing</span><span class="skill-chip">Onshape (CAD)</span><span class="skill-chip">Prototyping</span></div>
@@ -564,8 +529,8 @@
   </div>
 </div>
  
-<div class="slide-section" id="wheelchair-scale" data-slide="3" data-nav="assistive">
-  <div class="section-header"><span class="section-num">03</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
+<div class="slide-section" id="wheelchair-scale" data-slide="2" data-nav="assistive">
+  <div class="section-header"><span class="section-num">02</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
@@ -574,12 +539,16 @@
         <div class="card-org">Yale University</div>
         <div class="card-body">
           <div class="data-grid">
-            <div class="data-label">Problem</div>
-            <div class="data-value">Measuring body weight safely at home is incredibly difficult for wheelchair users without purchasing highly expensive medical equipment.</div>
+            <div class="data-label">Context</div>
+            <div class="data-value">Wheelchair users often can't track body weight at home — a routine health metric for most people — without buying a dedicated medical platform scale, which is bulky and expensive. The brief was to find a way around that using ordinary, affordable materials.</div>
             <div class="data-label">My Role</div>
-            <div class="data-value">Designing a structural setup using everyday, affordable materials that allows users to independently and safely roll on to measure their weight.</div>
-            <div class="data-label">Tools</div>
-            <div class="data-value">Computer-Aided Design (CAD), Material Stress Testing, Structural Engineering.</div>
+            <div class="data-value">I led the structural design: the ramp geometry, load path, and the material stress testing that confirmed it could be built safely without specialized hardware.</div>
+            <div class="data-label">What / How</div>
+            <div class="data-value">Designed a low-incline roll-on ramp platform in CAD, sized so a standard consumer bathroom scale could sit underneath and take an accurate reading once the wheelchair was centered and stationary. I stress-tested the platform material under expected load before building it.</div>
+            <div class="data-label">Why</div>
+            <div class="data-value">A shallow ramp angle was the key design decision — steep enough to be compact, but shallow enough that a user can self-propel onto it safely without assistance, which was non-negotiable given the goal of independent use at home.</div>
+            <div class="data-label">Outcome</div>
+            <div class="data-value">A working prototype that lets a wheelchair user weigh themselves independently at home using materials that cost a small fraction of a medical-grade wheelchair scale.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">CAD</span><span class="skill-chip">Accessibility Engineering</span><span class="skill-chip">Cost Optimization</span></div>
@@ -594,8 +563,8 @@
   </div>
 </div>
  
-<div class="slide-section" id="glove-project" data-slide="4" data-nav="assistive">
-  <div class="section-header"><span class="section-num">04</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
+<div class="slide-section" id="glove-project" data-slide="3" data-nav="assistive">
+  <div class="section-header"><span class="section-num">03</span><h2 class="section-title"><em>Assistive</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
@@ -604,12 +573,16 @@
         <div class="card-org">Yale Assistive Innovation and Design (Y-AID)</div>
         <div class="card-body">
           <div class="data-grid">
-            <div class="data-label">Problem</div>
-            <div class="data-value">Physical therapy regimens require consistent structural support and tracking that traditional medical bandages simply cannot provide.</div>
+            <div class="data-label">Context</div>
+            <div class="data-value">Physical therapy regimens need consistent structural support at the joint being treated, something a standard medical bandage or brace can't reliably provide over repeated sessions. Y-AID took this on as a club-wide design and fabrication effort.</div>
             <div class="data-label">My Role</div>
-            <div class="data-value">Member of the CAD design and fabrication team engineering a specialized silicone glove.</div>
+            <div class="data-value">Member of the CAD and fabrication team. My specific contribution was developing the silicone molds and testing material compositions for the wearable itself.</div>
+            <div class="data-label">What / How</div>
+            <div class="data-value">Designed mold geometry in Onshape and cast the glove in silicone, iterating on the shore hardness of the material to balance two competing needs: enough structure to support the joint during exercises, and enough flexibility that it doesn't restrict natural movement.</div>
+            <div class="data-label">Why</div>
+            <div class="data-value">Silicone casting over a rigid 3D-printed brace was the deliberate choice here — it flexes with the hand instead of fighting it, which matters directly for a device meant to be worn through active motion rather than immobilization.</div>
             <div class="data-label">Outcome</div>
-            <div class="data-value">Developed molds and material compositions for a flexible silicone wearable that directly aids targeted physical therapy.</div>
+            <div class="data-value">A flexible, silicone rehabilitation wearable that supports the target joint through therapy exercises without limiting range of motion.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">Onshape (CAD)</span><span class="skill-chip">Silicone Casting</span><span class="skill-chip">Fabrication</span></div>
@@ -622,8 +595,8 @@
 </div>
  
 <!-- ============ MECHANICAL HARDWARE ============ -->
-<div class="slide-section" id="safe-slicer" data-slide="5" data-nav="hardware">
-  <div class="section-header"><span class="section-num">05</span><h2 class="section-title"><em>Mechanical</em> Hardware</h2></div>
+<div class="slide-section" id="safe-slicer" data-slide="4" data-nav="hardware">
+  <div class="section-header"><span class="section-num">04</span><h2 class="section-title"><em>Mechanical</em> Hardware</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
@@ -632,14 +605,16 @@
         <div class="card-org">MENG 1105 - Yale University</div>
         <div class="card-body">
           <div class="data-grid">
-            <div class="data-label">Problem</div>
-            <div class="data-value">People with limited hand mobility often struggle to safely slice vegetables. Figuring out how to automate this without using any electronics required some clever mechanical loops.</div>
+            <div class="data-label">Context</div>
+            <div class="data-value">Course project for MENG 1105. The brief specifically required a design driven entirely by mechanical linkages, with no electronics permitted. I chose to target safe, one-handed vegetable slicing for users with limited hand mobility.</div>
             <div class="data-label">My Role</div>
-            <div class="data-value">Engineered a 100% mechanical, one-handed slicer. I designed a "Cut and Advance" loop driven entirely by the motion of a single handle.</div>
-            <div class="data-label">Execution</div>
-            <div class="data-value">I integrated a one-way needle-roller bearing on a freewheel shaft to grip the food during the cut, then used a linear gear rack and timing belt to advance the PVC conveyor forward by exactly one slice-thickness on the upstroke.</div>
-            <div class="data-label">Tools</div>
-            <div class="data-value">Onshape, 3D-Printed PLA, machining metals, gears, belts, and more.</div>
+            <div class="data-value">I engineered the full "Cut and Advance" drivetrain — the mechanism that turns a single handle motion into a repeating, safe slicing cycle.</div>
+            <div class="data-label">What / How</div>
+            <div class="data-value">Integrated a one-way needle-roller bearing on a freewheel shaft to grip the food only during the downward cut, then used a linear gear rack and timing belt to advance a PVC conveyor forward by exactly one slice-thickness on the upstroke.</div>
+            <div class="data-label">Why</div>
+            <div class="data-value">The one-way bearing was the piece that made single-handed operation possible without electronics: it lets one continuous handle motion do two jobs — cutting and advancing — automatically decoupling them so the food never moves during the actual cut, which is what keeps fingers away from the blade.</div>
+            <div class="data-label">Outcome</div>
+            <div class="data-value">A fully mechanical, one-handed slicer that repeats a safe cut-and-advance cycle with zero electronic components, built and machined in-house.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">Kinematics</span><span class="skill-chip">Machining</span><span class="skill-chip">Gear Trains</span><span class="skill-chip">Conveyor Systems</span></div>
@@ -652,8 +627,8 @@
   </div>
 </div>
  
-<div class="slide-section" id="vega" data-slide="6" data-nav="hardware">
-  <div class="section-header"><span class="section-num">06</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
+<div class="slide-section" id="vega" data-slide="5" data-nav="hardware">
+  <div class="section-header"><span class="section-num">05</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
@@ -662,14 +637,16 @@
         <div class="card-org">Yale University</div>
         <div class="card-body">
           <div class="data-grid">
-            <div class="data-label">Problem</div>
-            <div class="data-value">Grip strength exercises are notoriously repetitive and usually lack any real way to measure progress or keep you engaged.</div>
+            <div class="data-label">Context</div>
+            <div class="data-value">Grip-strength exercises are repetitive by nature and usually give the user no real feedback on progress, which makes them easy to abandon. I set out to make one that people would actually want to keep doing.</div>
             <div class="data-label">My Role</div>
-            <div class="data-value">I built "The Gamified Gripper Assistant"—a smart attachment that acts as a digital pet you keep healthy by completing physical grip challenges.</div>
-            <div class="data-label">Features</div>
-            <div class="data-value">Programmed an Arduino with four game modes: Morse Code input via grip length, Reps Per Second tracking, and a static Endurance mode with anti-cheat sensor logic.</div>
-            <div class="data-label">Design</div>
-            <div class="data-value">I designed a humanoid chassis that naturally guides the user's thumb into the correct ergonomic position, with potentiometers hidden inside to measure the exact spring compression.</div>
+            <div class="data-value">I independently designed and built the entire device — mechanical chassis, sensing, and embedded software — under the concept of "The Gamified Gripper Assistant": a smart attachment that acts like a digital pet you keep healthy through grip challenges.</div>
+            <div class="data-label">What / How</div>
+            <div class="data-value">Designed a humanoid chassis in CAD that naturally guides the user's thumb into correct ergonomic position, with potentiometers hidden inside to measure exact spring compression. Programmed an Arduino with four modes: Morse code input via grip length, reps-per-second tracking, and a static endurance mode with anti-cheat sensor logic.</div>
+            <div class="data-label">Why</div>
+            <div class="data-value">I built the anti-cheat logic into the endurance mode specifically because a hidden sensor is only useful for tracking progress if the data is trustworthy — without it, a user could simply hold the device still without gripping and the mode would be meaningless.</div>
+            <div class="data-label">Outcome</div>
+            <div class="data-value">A working, gamified grip-training device with four distinct interaction modes, demoed on video below.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">Arduino / C++</span><span class="skill-chip">Potentiometers</span><span class="skill-chip">Onshape</span><span class="skill-chip">UI/UX Logic</span></div>
@@ -702,8 +679,8 @@
   </div>
 </div>
  
-<div class="slide-section" id="pong" data-slide="7" data-nav="hardware">
-  <div class="section-header"><span class="section-num">07</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
+<div class="slide-section" id="pong" data-slide="6" data-nav="hardware">
+  <div class="section-header"><span class="section-num">06</span><h2 class="section-title"><em>Embedded</em> Systems</h2></div>
   <div class="project-block wave-item">
     <div class="project-inner long-content">
       <div class="text-content">
@@ -712,12 +689,16 @@
         <div class="card-org">Engineering Innovation &amp; Design</div>
         <div class="card-body">
           <div class="data-grid">
-            <div class="data-label">Goal</div>
-            <div class="data-value">Bring back the nostalgic 1980s TV aesthetic using modern, rapid Design for Assembly (DFA) techniques.</div>
-            <div class="data-label">Hardware</div>
-            <div class="data-value">I engineered a 100% screwless chassis held together entirely by custom snap-fit joints. I also soldered the Arduino Nano and OLED screen to an internal mount to make sure the electronics survive aggressive button-mashing.</div>
-            <div class="data-label">Software</div>
-            <div class="data-value">Programmed game physics in Arduino featuring vertical head-to-head gameplay, randomly spawning geometry power-ups, live statistics, and a smart power-saving sleep mode.</div>
+            <div class="data-label">Context</div>
+            <div class="data-value">The goal was to bring back a nostalgic 1980s TV console aesthetic while applying modern Design for Assembly (DFA) techniques — building it as though it needed to go to mass production, not just survive a demo.</div>
+            <div class="data-label">My Role</div>
+            <div class="data-value">I engineered both sides of the build: the enclosure and mechanical assembly, and the embedded game software running on it.</div>
+            <div class="data-label">What / How</div>
+            <div class="data-value">Designed a 100% screwless chassis held together entirely by custom snap-fit joints, and soldered the Arduino Nano and OLED screen to an internal mount rather than leaving them loose. Programmed vertical head-to-head gameplay with randomly spawning power-ups, live statistics, and a power-saving sleep mode.</div>
+            <div class="data-label">Why</div>
+            <div class="data-value">Snap-fit joints and a soldered internal mount were both about survivability under real use — a screwed enclosure loosens over repeated handling, and a friction-fit board would eventually shake loose during the kind of aggressive button-mashing a Pong console actually gets.</div>
+            <div class="data-label">Outcome</div>
+            <div class="data-value">A fully assembled, screwless retro console with working two-player gameplay and no fasteners in the final build.</div>
           </div>
         </div>
         <div class="card-skills"><span class="skill-chip">Circuit Design</span><span class="skill-chip">Soldering</span><span class="skill-chip">Arduino / C++</span><span class="skill-chip">DFA 3D Printing</span></div>
@@ -734,8 +715,8 @@
 </div>
  
 <!-- ============ PHILOSOPHY ============ -->
-<div class="slide-section" id="philosophy" data-slide="8" data-nav="philosophy">
-  <div class="section-header"><span class="section-num">08</span><h2 class="section-title">How I <em>Think</em></h2></div>
+<div class="slide-section" id="philosophy" data-slide="7" data-nav="philosophy">
+  <div class="section-header"><span class="section-num">07</span><h2 class="section-title">How I <em>Think</em></h2></div>
   <div class="philosophy wave-item" style="background: transparent; border: none; padding: 0; overflow: visible;">
     <div class="phil-grid">
       <div class="phil-card">
@@ -757,7 +738,7 @@
   </div>
 </div>
  
-<div class="slide-section" id="footer" data-slide="9" style="align-items: center; text-align: center;">
+<div class="slide-section" id="footer" data-slide="8" style="align-items: center; text-align: center;">
   <h2 style="font-family: 'Syne'; font-size: 3rem; margin-bottom: 2rem;">Let's Connect.</h2>
   <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
     <a href="mailto:brianlprendes@gmail.com" target="_blank" rel="noopener noreferrer" class="action-btn magnetic-target" style="padding: 16px 36px; font-size: 1rem;">Email Me ↗</a>
@@ -766,12 +747,8 @@
   <span style="color: var(--ink-muted); margin-top: 3rem; font-size: 0.8rem; letter-spacing: 0.2em;">BRIAN PRENDES · YALE PHYSICS &amp; MECH E 2029</span>
 </div>
  
-<!-- MUSIC TOGGLE -->
 <div class="music-btn" id="musicToggle">🎧 ambient OFF</div>
  
-<!-- ============================================================
-     THREE.JS QUANTUM REACTOR — ENHANCED WITH DATA PILLARS
-============================================================ -->
 <script type="module">
   import * as THREE from 'three';
   import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -812,7 +789,6 @@
   }
   const particleTexture = createDustTexture();
  
-  // BASE OCEAN LAYER
   const width = 120, height = 120, segments = 90;
   const planeGeo = new THREE.PlaneGeometry(width, height, segments, segments);
   planeGeo.rotateX(-Math.PI / 2.1);
@@ -835,7 +811,6 @@
   const ocean = new THREE.Points(planeGeo, planeMat);
   scene.add(ocean);
  
-  // FLOATING DUST
   const floatCount = 600;
   const floatGeo = new THREE.BufferGeometry();
   const floatPos = new Float32Array(floatCount * 3);
@@ -859,7 +834,6 @@
   const driftingParticles = new THREE.Points(floatGeo, floatMat);
   scene.add(driftingParticles);
  
-  // SOLAR FLARES
   const flareCount = 40;
   const flareGeo = new THREE.BufferGeometry();
   const flarePos = new Float32Array(flareCount * 3);
@@ -890,10 +864,6 @@
   const flares = new THREE.Points(flareGeo, flareMat);
   scene.add(flares);
  
-  // ============================================================
-  // NEW: ARCHITECTURAL DATA PILLARS — sparse vertical columns
-  // rising from the ocean like a quantum city skyline
-  // ============================================================
   const pillarGroup = new THREE.Group();
   scene.add(pillarGroup);
  
@@ -905,7 +875,6 @@
     const baseH = 2 + Math.random() * 10;
     pillarPositions.push({ x: px, z: pz, h: baseH, phase: Math.random() * Math.PI * 2 });
  
-    // Each pillar is a vertical line of particles
     const pCount = Math.floor(baseH * 4);
     const pGeo = new THREE.BufferGeometry();
     const pPos = new Float32Array(pCount * 3);
@@ -916,7 +885,6 @@
       pPos[j*3+1] = (j / pCount) * baseH - 2;
       pPos[j*3+2] = pz + (Math.random()-0.5)*0.3;
  
-      // Gradient: blue at base → gold at apex
       const t = j / pCount;
       const baseColor = new THREE.Color(0x0033cc);
       const tipColor = new THREE.Color(0xE6B74E);
@@ -952,14 +920,12 @@
     requestAnimationFrame(animate);
     time += 0.012;
  
-    // Ocean waves
     for(let i=0; i<vArr.length; i+=3){
       const x=vArr[i]; const z=vArr[i+2];
       vArr[i+1] = startY[i/3] + Math.sin(x*0.15+time)*1.5 + Math.cos(z*0.15+time)*1.5 + Math.sin((x+z)*0.05+time);
     }
     posAttribute.needsUpdate=true;
  
-    // Floating dust
     for(let i=0;i<floatCount;i++){
       driftPositions[i*3]+=floatVel[i].x;
       driftPositions[i*3+1]+=floatVel[i].y;
@@ -974,7 +940,6 @@
     driftingParticles.geometry.attributes.position.needsUpdate=true;
     driftingParticles.rotation.y=time*0.05;
  
-    // Solar flares
     for(let i=0;i<flareCount;i++){
       if(flareLife[i]===0 && Math.random()<0.02){
         const oceanVertexCount=vArr.length/3;
@@ -995,13 +960,11 @@
     flares.geometry.attributes.position.needsUpdate=true;
     flares.geometry.attributes.color.needsUpdate=true;
  
-    // Pillar pulse — each pillar breathes in scale Y
     pillarPositions.forEach((p, idx) => {
       const pillar = pillarGroup.children[idx];
       if(pillar){
         const pulse = 1 + Math.sin(time * 0.8 + p.phase) * 0.12;
         pillar.scale.y = pulse;
-        // Subtle opacity breath
         pillar.material && (pillar.material.opacity = 0.5 + Math.sin(time * 0.6 + p.phase) * 0.2);
       }
     });
@@ -1022,13 +985,7 @@
   });
 </script>
  
-<!-- ============================================================
-     UI LAYER — ALL ENHANCED INTERACTIONS
-============================================================ -->
 <script>
-// ──────────────────────────────────────────────
-// 1. AMBIENT MUSIC
-// ──────────────────────────────────────────────
 const audio = new Audio('https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3');
 audio.loop=true; audio.volume=0.06;
 let musicPlaying=false;
@@ -1048,15 +1005,11 @@ musicBtn.addEventListener('click',(e)=>{
   else{ audio.play().catch(()=>{}); musicPlaying=true; musicBtn.innerHTML='🎧 ambient ON'; }
 });
  
-// ──────────────────────────────────────────────
-// 2. SLIDE REGISTRATION + DOTS + FILAMENT
-// ──────────────────────────────────────────────
 const slides = Array.from(document.querySelectorAll('.slide-section'));
 const totalSlides = slides.length;
 const dotsContainer = document.getElementById('slideDots');
 const filament = document.getElementById('scrollFilament');
  
-// Create dots
 slides.forEach((slide, i) => {
   const dot = document.createElement('div');
   dot.className = 'slide-dot' + (i===0 ? ' active' : '');
@@ -1069,23 +1022,18 @@ function updateSlideState(idx){
   if(idx === currentSlide) return;
   currentSlide = idx;
  
-  // Dots
   document.querySelectorAll('.slide-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
  
-  // Filament fill
   const pct = Math.round((idx / (totalSlides-1)) * 100);
   const steps = [0,10,20,30,40,50,60,70,80,90,100];
   const closest = steps.reduce((a,b) => Math.abs(b-pct)<Math.abs(a-pct)?b:a);
   filament.className = 'scroll-filament' + (closest>0 ? ' p'+closest : '');
  
-  // Nav active pill
   updateNavPill(idx);
  
-  // Fire snap burst
   fireSnapBurst();
 }
  
-// Intersection observer for slides
 const slideObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if(entry.isIntersecting && entry.intersectionRatio > 0.5){
@@ -1096,9 +1044,6 @@ const slideObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.5 });
 slides.forEach(slide => slideObserver.observe(slide));
  
-// ──────────────────────────────────────────────
-// 3. NAV ACTIVE PILL
-// ──────────────────────────────────────────────
 const navPill = document.getElementById('navPill');
 const navLinksEl = document.querySelectorAll('#navLinks a');
  
@@ -1124,9 +1069,6 @@ navPill.style.transition = 'left 0.5s cubic-bezier(0.2,0.9,0.4,1.1), width 0.5s 
 navPill.style.opacity = '0';
 setTimeout(()=>updateNavPill(0), 200);
  
-// ──────────────────────────────────────────────
-// 4. SNAP BURST — gold particles burst on slide change
-// ──────────────────────────────────────────────
 const burstContainer = document.getElementById('snapBurst');
 function fireSnapBurst(){
   const pCount = 18;
@@ -1156,9 +1098,6 @@ function fireSnapBurst(){
   }
 }
  
-// ──────────────────────────────────────────────
-// 5. GSAP SCROLL REVEALS
-// ──────────────────────────────────────────────
 gsap.registerPlugin(ScrollTrigger);
 document.querySelectorAll('.wave-item').forEach((item) => {
   gsap.fromTo(item,
@@ -1173,17 +1112,11 @@ document.querySelectorAll('.wave-item').forEach((item) => {
   );
 });
  
-// ──────────────────────────────────────────────
-// 6. CINEMATIC HERO ENTRANCE
-// ──────────────────────────────────────────────
 gsap.fromTo('.hero-eyebrow, .hero-name, .hero-desc, .action-btn',
   { opacity: 0, y: 50, filter: "blur(10px)" },
   { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.8, stagger: 0.2, ease: "power4.out", delay: 0.3 }
 );
  
-// ──────────────────────────────────────────────
-// 7. KINETIC HERO TEXT — sine wave float per letter
-// ──────────────────────────────────────────────
 function wrapLetters(el){
   const text = el.textContent;
   el.innerHTML = '';
@@ -1207,12 +1140,8 @@ function animateKinetic(){
   });
   requestAnimationFrame(animateKinetic);
 }
-// Start kinetic only after hero fades in
 setTimeout(animateKinetic, 2000);
  
-// ──────────────────────────────────────────────
-// 8. MAGNETIC CURSOR SYSTEM
-// ──────────────────────────────────────────────
 const cursorCore = document.createElement('div');
 cursorCore.className = 'cursor-core';
 document.body.appendChild(cursorCore);
@@ -1232,7 +1161,6 @@ let mouseX = window.innerWidth/2;
 let mouseY = window.innerHeight/2;
 let isHoveringMagnetic = false;
  
-// Detect magnetic targets
 const magneticTargets = document.querySelectorAll('.magnetic-target, .action-btn, .phil-card, .project-block, nav');
 magneticTargets.forEach(el => {
   el.addEventListener('mouseenter', () => {
@@ -1264,10 +1192,6 @@ function renderCursorTrail(){
 }
 renderCursorTrail();
  
-// ──────────────────────────────────────────────
-// 9. SCROLL-LINKED CANVAS DEPTH SHIFT
-//    — ocean tilts slightly based on scroll position
-// ──────────────────────────────────────────────
 let lastScrollY = 0;
 window.addEventListener('scroll', () => {
   lastScrollY = window.scrollY;
